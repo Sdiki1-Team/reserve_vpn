@@ -5,4 +5,4 @@ function App() {
   return <MainTabs />;
 }
 
-export default App; 
+export default App;
