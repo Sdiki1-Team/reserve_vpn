@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Animated, Dimensions } from 'react-native';
-import { MMKV } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { commonStyles } from '../styles/commonStyles';
 import BackButton from './BackButton';
 
@@ -29,17 +29,15 @@ const modes = [
 
 const STORAGE_KEY = 'selected_mode';
 
-const storage = new MMKV();
-
 function SettingsVPNModeScreen({ navigation }) {
   const [selectedMode, setSelectedMode] = useState(0);
   const animatedValue = new Animated.Value(0);
 
   useEffect(() => {
-    const loadSelectedMode = () => {
-      const storedMode = storage.getNumber(STORAGE_KEY);
-      if (storedMode !== undefined) {
-        setSelectedMode(storedMode);
+    const loadSelectedMode = async () => {
+      const storedMode = await AsyncStorage.getItem(STORAGE_KEY);
+      if (storedMode !== null) {
+        setSelectedMode(Number(storedMode));
       }
     };
 
@@ -49,7 +47,7 @@ function SettingsVPNModeScreen({ navigation }) {
   const handleSelectMode = async (index) => {
     if (selectedMode === index) return;
     setSelectedMode(index);
-    storage.set(STORAGE_KEY, index);
+    await AsyncStorage.setItem(STORAGE_KEY, index.toString());
     Animated.timing(animatedValue, {
       toValue: 1,
       duration: 300,
