@@ -1,23 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Dimensions, Image } from 'react-native';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Dimensions, Image, Animated } from 'react-native';
 import { CircularProgress } from 'react-native-circular-progress';
 import { commonStyles } from '../styles/commonStyles';
+import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
+import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
 function HomeScreen({ navigation }) {
   const [connected, setConnected] = useState(false);
   const [ping, setPing] = useState(65);
-  const [selectedSpeedType, setSelectedSpeedType] = useState('download');
+  const [selectedSpeedType, setSelectedSpeedType] = useState(null);
+  const [showSpeedometer, setShowSpeedometer] = useState(false);
   const [currentServer, setCurrentServer] = useState(null);
-  const [servers, setServers] = useState([
+  const [servers] = useState([
     { id: 1, name: "Москва", location: "Москва", speed: "100 Mbps" },
     { id: 2, name: "Нью-Йорк", location: "Нью-Йорк", speed: "200 Mbps" },
     { id: 3, name: "Лондон", location: "Лондон", speed: "150 Mbps" },
     { id: 4, name: "Токио", location: "Токио", speed: "300 Mbps" },
   ]);
-  const vpnIpRef = useRef(null);
-  const [vpnIpWidth, setVpnIpWidth] = useState(0);
+
+  // Анимация волн
+  const staticScales = useMemo(() => [1, 1, 1, 1.2, 1.4, 1.6], []);
+  const staticOpacities = useMemo(() => [1, 1, 1, 0.8, 0.6, 0.3], []);
+  const animatedScales = useRef(staticScales.map(scale => new Animated.Value(scale))).current;
+  const animatedOpacities = useRef(staticOpacities.map(opacity => new Animated.Value(opacity))).current;
+  const animationRefs = useRef([]);
+  const [speedometerScale] = useState(new Animated.Value(0)); // Начальное значение для анимации
 
   // Устанавливаем значения по умолчанию
   const myIp = "192.168.1.35";
@@ -25,23 +34,246 @@ function HomeScreen({ navigation }) {
   const downloadSpeed = 45.6;
   const uploadSpeed = 12.3;
 
+  // Устанавливаем первый сервер по умолчанию
   useEffect(() => {
-    // Устанавливаем первый сервер по умолчанию
     if (servers.length > 0) {
       setCurrentServer(servers[0]);
     }
   }, [servers]);
 
+  useEffect(() => {
+    if (connected) {
+      // Сбросить все анимации
+      animationRefs.current.forEach(ref => ref.stop());
+      animationRefs.current = [];
+      
+      // Запустить анимацию для каждой волны
+      const animations = staticScales.map((scale, index) => {
+        const scaleTo = index === 0 ? 1.6 : index === 1 ? 1.4 : index === 2 ? 1.2 : index === 3 ? 1.8 : index === 4 ? 2 : 2.2;
+        const opacityTo = index === 0 ? 0.3 : index === 1 ? 0.6 : index === 2 ? 0.8 : index === 3 ? 0 : index === 4 ? 0 : 0;
+
+        // Устанавливаем задержку для первой и второй волн
+        const delay = index === 2 ? 1600 : index === 1 ? 800 : 0;
+        const opacityDurationDelta = index === 0 ? 0 : index === 1 ? 800: index === 2 ? 1600 : index === 3 ? 800 : index === 4 ? 1600 : index === 5 ? 2400 : 2400;
+
+        return Animated.sequence([
+          Animated.delay(delay), // Добавляем задержку перед анимацией
+          Animated.parallel([
+            Animated.timing(animatedScales[index], {
+              toValue: scaleTo,
+              duration: 3000 - delay,
+              useNativeDriver: false,
+            }),
+            Animated.timing(animatedOpacities[index], {
+              toValue: opacityTo,
+              duration: 3000 - opacityDurationDelta,
+              useNativeDriver: false,
+            }),
+          ]),
+        ]);
+      });
+
+      // Запускаем все анимации одновременно
+      Animated.parallel(animations).start();
+    } else {
+      // Сбросить анимацию при отключении
+      animationRefs.current.forEach(ref => ref.stop());
+      animationRefs.current = [];
+      
+      // Мгновенный сброс к начальному состоянию
+      animatedScales.forEach((anim, index) => anim.setValue(staticScales[index]));
+      animatedOpacities.forEach((opacity, index) => opacity.setValue(staticOpacities[index]));
+    }
+  }, [connected, animatedOpacities, animatedScales, staticScales, staticOpacities]);
+
+  // Запускаем анимацию при показе спидометра
+  useEffect(() => {
+    if (showSpeedometer) {
+      Animated.timing(speedometerScale, {
+        toValue: 1, // Конечное значение
+        duration: 300, // Длительность анимации
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // Сбрасываем масштаб, когда спидометр скрыт
+      speedometerScale.setValue(0);
+    }
+  }, [showSpeedometer, speedometerScale]);
+
   const toggleConnection = () => {
-    setConnected(!connected);
+    const newState = !connected;
+    setConnected(newState);
+    if (!newState) {
+      setShowSpeedometer(false);
+      setSelectedSpeedType(null); // Сбрасываем выбор типа скорости
+    }
   };
 
-  const handleVpnIpLayout = () => {
-    if (vpnIpRef.current) {
-      vpnIpRef.current.measure((x, y, width) => {
-        setVpnIpWidth(width);
-      });
+  const handleSpeedTypeSelect = (type) => {
+    if (connected) {
+      // Если уже выбран этот тип и спидометр показан - скрываем
+      if (selectedSpeedType === type && showSpeedometer) {
+        setShowSpeedometer(false);
+      } 
+      // Если выбран другой тип или спидометр не показан - показываем
+      else {
+        setSelectedSpeedType(type);
+        setShowSpeedometer(true);
+      }
     }
+  };
+
+  const renderServerPanel = () => {
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('ChangeServer')}>
+        <View style={styles.serverBar}>
+          <Text style={styles.serverLabel}>Сервер</Text>
+          <View style={styles.divider} />
+          <Text style={styles.serverName}>{currentServer?.name || "Выберите сервер"}</Text>
+          {renderPingIndicator()}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderWaves = () => {
+    if (showSpeedometer) return null;
+    
+    return (
+      <>
+        {/* Всегда отображаем волны */}
+        {staticScales.map((_, index) => (
+          <Animated.View 
+            key={index}
+            style={[
+              styles.wave, 
+              { 
+                borderColor: connected ? '#723CEB' : '#999',
+                transform: [{ scale: animatedScales[index] }],
+                opacity: animatedOpacities[index],
+              }
+            ]} 
+          />
+        ))}
+      </>
+    );
+  };
+
+  const renderSpeedometer = () => {
+    if (!showSpeedometer) return null;
+
+    const speed = selectedSpeedType === 'download' ? downloadSpeed : uploadSpeed;
+    const speedColor = selectedSpeedType === 'download' ? '#723CEB' : '#FFFFFF';
+    const speedLabel = selectedSpeedType === 'download' ? 'Download' : 'Upload';
+    
+    // Расчет положения указателя
+    const fill = calculateFill(speed);
+    const angle = 132.5 + (285 * fill / 100);
+    const radian = (angle * Math.PI) / 180;
+    const radius = 105; // Радиус для указателя (внутренний радиус шкалы)
+    const pointerX = 110 + radius * Math.cos(radian);
+    const pointerY = 110 + radius * Math.sin(radian);
+
+    return (
+      <TouchableOpacity 
+        onPress={() => setShowSpeedometer(false)}
+        activeOpacity={0.7}
+        style={styles.absoluteSpeedometer}
+      >
+        <Animated.View style={{
+          transform: [{ scale: speedometerScale }], // Применяем анимацию к масштабу
+          opacity: speedometerScale, // Применяем анимацию к непрозрачности
+        }}>
+          <CircularProgress
+            size={220}
+            width={8}
+            fill={fill}
+            tintColor="white"
+            backgroundColor="#333"
+            rotation={217.5}
+            arcSweepAngle={285}
+            lineCap="round"
+            children={() => (
+              <View style={styles.speedValueContainer}>
+                <Text style={[styles.speedTypeLabel, { fontSize: 14 }]}>{speedLabel}</Text>
+                <Text style={[styles.speedValue, { color: speedColor }]}>
+                  {speed.toFixed(1)}
+                </Text>
+                <Text style={[styles.speedUnit, { fontSize: 14 }]}>Мб/с</Text>
+              </View>
+            )}
+          />
+          
+          {/* Указатель */}
+          <Animated.View 
+            style={[
+              styles.pointer, 
+              { 
+                left: pointerX - 10,
+                top: pointerY - 10,
+                shadowColor: '#FFF',
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.8,
+                shadowRadius: 5,
+                elevation: 5,
+              }
+            ]}
+          >
+            <View style={styles.pointerInner} />
+          </Animated.View>
+        </Animated.View>
+      </TouchableOpacity>
+    );
+  };
+
+  const calculateFill = (speed) => {
+    if (speed < 20) return 50 * (speed / 20);
+    if (speed < 30) return 50 + 1.25 * (speed - 20);
+    if (speed < 50) return 62.5 + 0.625 * (speed - 30);
+    return 75 + 0.5 * (speed - 50);
+  };
+
+  const renderConnectionButton = () => {
+    if (showSpeedometer) return null;
+
+    const buttonStyle = {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: connected ? 'transparent' : '#191919',
+      borderWidth: 1,
+      borderColor: 'grey'
+    };
+
+    return (
+      <View style={buttonStyle}>
+        {connected ? (
+          <LinearGradient
+            colors={['#723CEB', '#3D04BB']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.connectButton}
+          >
+            <TouchableOpacity
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+              onPress={toggleConnection}
+            >
+              <Text style={styles.connectButtonText}>RESERVE</Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        ) : (
+          <TouchableOpacity
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+            onPress={toggleConnection}
+            disabled={false} // Кнопка активна, но с серым фоном
+          >
+            <Text style={styles.connectButtonText}>RESERVE</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
   };
 
   const renderPingIndicator = () => {
@@ -78,75 +310,12 @@ function HomeScreen({ navigation }) {
     );
   };
 
-  const renderSpeedometer = () => {
-    const speed = selectedSpeedType === 'download' ? downloadSpeed : uploadSpeed;
-    if (speed < 20)
-      var fill = 50 * (speed / 20);
-    else if (speed < 30)
-      var fill = 50 + 1.25 * (speed - 20);
-    else if (speed < 50)
-      var fill = 62.5 + 0.625 * (speed - 30);
-    else 
-      var fill = 75 + 0.5 * (speed - 50);
-    
-    // Равномерно распределенные метки
-    const marks = [[0, 0], [5, 1], [10, 2], [15, 3], [20, 4], [30, 5], [50, 6], [75, 7], [100, 8]];
-    
+  const renderConnectionTime = () => {
     return (
-      <TouchableOpacity 
-        onPress={connected ? toggleConnection : undefined}
-        activeOpacity={connected ? 0.7 : 1}
-      >
-        <CircularProgress
-          size={220}
-          width={10}
-          fill={fill}
-          tintColor="white"
-          backgroundColor="#333"
-          rotation={217.5}
-          arcSweepAngle={285}
-          lineCap="round"
-        >
-          {(fill) => (
-            <View style={styles.speedValueContainer}>
-              <Text style={styles.speedValue}>
-                {speed.toFixed(1)}
-              </Text>
-              <Text style={styles.speedUnit}>Мб/с</Text>
-            </View>
-          )}
-        </CircularProgress>
-        
-        {/* Метки шкалы */}
-        <View style={styles.marksContainer}>
-          {marks.map((value) => {
-            // Рассчитываем положение метки на окружности
-            const angle = 52 - ((8 - value[1]) / 8) * 285;
-            const radian = (angle * Math.PI) / 180;
-            const radius = 130;
-            const x = 100 + radius * Math.cos(radian);
-            const y = 100 + radius * Math.sin(radian);
-            
-            return (
-              <Text
-                key={value[0]}
-                style={[
-                  styles.markText,
-                  {
-                    position: 'absolute',
-                    left: x,
-                    top: y,
-                    color: value[0] <= speed ? '#FFFFFF' : '#AAAAAA',
-                    fontWeight: value[0] <= speed ? 'bold' : 'normal'
-                  }
-                ]}
-              >
-                {value[0]}
-              </Text>
-            );
-          })}
-        </View>
-      </TouchableOpacity>
+      <View style={styles.connectionTimeContainer}>
+        <Text style={styles.connectionTimeLabel}>Время подключения</Text>
+        <Text style={styles.connectionTime}>00:25:41</Text>
+      </View>
     );
   };
 
@@ -156,34 +325,23 @@ function HomeScreen({ navigation }) {
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[styles.centeredContainer, { paddingTop: 0, marginTop: 0 }]}>
-
-        <Text style={[commonStyles.titleText, {marginTop: 0, marginBottom: 10}]}>Reserve VPN</Text>
+      <View style={[styles.container]}>
+        <Text style={[commonStyles.titleText, { marginTop: 0, marginBottom: 10 }]}>Reserve VPN</Text>
+        
         {/* Панель сервера */}
-        <View style={styles.serverBar}>
-          <View style={{display: 'flex', flexDirection: 'row'}}>
-            <Text style={styles.serverLabel}>Сервер</Text>
-            <View style={styles.divider} />
-            <Text style={styles.serverName}>{currentServer?.name || "Выберите сервер"}</Text>
-          </View>
-          {renderPingIndicator()}
-        </View>
+        {renderServerPanel()}
 
         {/* Блок IP */}
-        <View style={[styles.ipBlock, { borderColor: '#723CEB'}]}>
+        <View style={[styles.ipBlock, { borderColor: '#723CEB' }]}>
           <View style={styles.ipSection}>
             <Text style={styles.ipLabel}>My IP</Text>
             <Text style={styles.ipAddress}>{myIp}</Text>
           </View>
-          
           <View style={[styles.arrowContainer]}>
             <Text style={styles.arrowIcon}>→</Text>
           </View>
-          
           <View style={[styles.vpnIpContainer]}>
-            <View 
-              ref={vpnIpRef}
-              onLayout={handleVpnIpLayout}
+            <View
               style={styles.vpnIpInner}
             >
               <Text style={styles.ipLabel}>VPN IP</Text>
@@ -192,55 +350,81 @@ function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Блоки скорости */}
-        <View style={styles.speedContainer}>
-          <TouchableOpacity 
-            style={[
-              styles.speedBlock,
-              selectedSpeedType === 'download' && styles.speedBlockActive
-            ]}
-            onPress={() => setSelectedSpeedType('download')}
-          >
-            <Image 
-              source={require('../images/icons/download.png')} 
-              style={styles.speedIcon} 
-            />
-            <View>
-              <Text style={styles.speedLabel}>DOWNLOAD</Text>
-              <Text style={styles.speedValueText}>{downloadSpeed.toFixed(1)} Mbps</Text>
-            </View>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[
-              styles.speedBlock,
-              selectedSpeedType === 'upload' && styles.speedBlockActive
-            ]}
-            onPress={() => setSelectedSpeedType('upload')}
-          >
-            <Image 
-              source={require('../images/icons/upload.png')} 
-              style={styles.speedIcon} 
-            />
-            <View>
-              <Text style={styles.speedLabel}>UPLOAD</Text>
-              <Text style={styles.speedValueText}>{uploadSpeed.toFixed(1)} Mbps</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+        {/* Блоки скорости (только при подключении) */}
+        {connected && (
+          <>
+            <View style={styles.speedContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.speedBlock,
+                  selectedSpeedType === 'download' && showSpeedometer && styles.speedBlockActive
+                ]}
+                onPress={() => handleSpeedTypeSelect('download')}
+              >
+                <Image
+                  source={require('../images/icons/download.png')}
+                  style={[styles.speedIcon, { 
+                    tintColor: '#723CEB' 
+                  }]}
+                />
+                <View>
+                  <Text style={[styles.speedLabel, { 
+                    color: selectedSpeedType === 'download' && showSpeedometer ? 'white' : '#AAAAAA', 
+                    fontSize: 14 
+                  }]}>
+                    Download
+                  </Text>
+                  <Text style={[styles.speedValueText, { 
+                    color: selectedSpeedType === 'download' && showSpeedometer ? 'white' : '#AAAAAA', 
+                    fontSize: 14 
+                  }]}>
+                    {downloadSpeed.toFixed(1)} Мб/с
+                  </Text>
+                </View>
+              </TouchableOpacity>
 
-        {/* Кнопка подключения/спидометр */}
+              <View style={styles.verticalDivider} />
+
+              <TouchableOpacity
+                style={[
+                  styles.speedBlock,
+                  selectedSpeedType === 'upload' && showSpeedometer && styles.speedBlockActive
+                ]}
+                onPress={() => handleSpeedTypeSelect('upload')}
+              >
+                <Image
+                  source={require('../images/icons/upload.png')}
+                  style={[styles.speedIcon, { 
+                    tintColor: 'white' 
+                  }]}
+                />
+                <View>
+                  <Text style={[styles.speedLabel, { 
+                    color: selectedSpeedType === 'upload' && showSpeedometer ? 'white' : '#AAAAAA', 
+                    fontSize: 14 
+                  }]}>
+                    Upload
+                  </Text>
+                  <Text style={[styles.speedValueText, { 
+                    color: selectedSpeedType === 'upload' && showSpeedometer ? 'white' : '#AAAAAA', 
+                    fontSize: 14 
+                  }]}>
+                    {uploadSpeed.toFixed(1)} Мб/с
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Время подключения (только при подключении и без спидометра) */}
+            {!showSpeedometer && renderConnectionTime()}
+          </>
+        )}
+
+        {/* Контейнер для кнопки/спидометра */}
         <View style={styles.buttonContainer}>
-          {connected ? (
-            renderSpeedometer()
-          ) : (
-            <TouchableOpacity 
-              style={styles.connectButton}
-              onPress={toggleConnection}
-            >
-              <Text style={styles.connectButtonText}>RESERVE</Text>
-            </TouchableOpacity>
-          )}
+          {renderWaves()}
+          {renderConnectionButton()}
+          {renderSpeedometer()}
         </View>
       </View>
     </ImageBackground>
@@ -248,12 +432,10 @@ function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  centeredContainer: {
+  container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 20,
   },
-
   serverBar: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -332,26 +514,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: width * 0.9,
-    marginVertical: 20,
+    marginVertical: 15,
   },
   speedBlock: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#191919',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
     borderRadius: 8,
-    padding: 15,
-    width: width * 0.43,
+    padding: 10,
+    width: width * 0.42,
   },
   speedBlockActive: {
     borderColor: '#723CEB',
     borderWidth: 1,
   },
   speedIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 10,
+    width: 20,
+    height: 20,
+    marginRight: 8,
     resizeMode: 'contain',
-    tintColor: '#723CEB',
   },
   speedLabel: {
     color: '#AAAAAA',
@@ -359,20 +541,21 @@ const styles = StyleSheet.create({
   },
   speedValueText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   buttonContainer: {
-    height: 220,
-    marginTop: 10,
+    position: 'absolute',
+    bottom: 100,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   connectButton: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#723CEB',
+    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -385,15 +568,74 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  speedTypeLabel: {
+    color: '#CCCCCC',
+    fontSize: 14,
+    marginBottom: 5,
+  },
   speedValue: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#723CEB',
   },
   speedUnit: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#AAAAAA',
-    marginTop: -5,
+    marginTop: 2,
+  },
+  wave: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 1,
+    top: '50%',
+    left: '50%',
+    marginTop: -60,
+    marginLeft: -60,
+  },
+  verticalDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: '#CCCCCC',
+    marginHorizontal: 5,
+    alignSelf: 'center',
+  },
+  pointer: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pointerInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'white',
+  },
+  connectionTimeContainer: {
+    alignItems: 'center',
+    marginTop: 30,
+    marginBottom: 10,
+  },
+  connectionTimeLabel: {
+    color: '#AAAAAA',
+    fontSize: 14,
+    marginBottom: -5,
+    marginTop: 5,
+  },
+  connectionTime: {
+    color: '#FFFFFF',
+    fontSize: 26,
+    fontWeight: 'bold',
+  },
+  ipSection: {
+    alignItems: 'center',
+  },
+  vpnIpContainer: {
+    alignItems: 'center',
   },
   marksContainer: {
     position: 'absolute',
@@ -407,20 +649,13 @@ const styles = StyleSheet.create({
     width: 20,
     textAlign: 'center',
   },
-  pointer: {
+  absoluteSpeedometer: {
     position: 'absolute',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'transparent',
-    justifyContent: 'center',
+    top: '50%',
+    left: '50%',
     alignItems: 'center',
-  },
-  pointerInner: {
-    width: 15,
-    height: 15,
-    borderRadius: 10,
-    backgroundColor: 'white',
+    justifyContent: 'center',
+    transform: [{ translateX: -110 }, { translateY: -180 }], // Центрируем спидометр
   },
 });
 

@@ -81,7 +81,6 @@ const SvgIcon = ({ name, size = 24, color = '#000000', style }) => {
               strokeLinejoin="round"
             />
             <Circle cx="12" cy="12" r="3" stroke="#191919" strokeWidth="3" fill="none"/>
-
           </G>
         );
       default:
