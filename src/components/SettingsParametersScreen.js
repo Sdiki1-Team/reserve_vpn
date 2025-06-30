@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, 
 import { commonStyles } from '../styles/commonStyles';
 import ToggleSwitch from './ToggleSwitch';
 import BackButton from './BackButton';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 function SettingsParameters({ navigation }) {
   const [smartFiltering, setSmartFiltering] = useState(false);
@@ -32,7 +34,7 @@ function SettingsParameters({ navigation }) {
         contentContainerStyle={{ 
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 10
+          padding: pixelToHeight(10)
         }}
       >
         <Text style={styles.modeTitle}>Режим RESERVE</Text>
@@ -157,7 +159,7 @@ function SettingsParameters({ navigation }) {
         <View style={styles.divider}/>
         
         {/* Добавление белой полосы */}
-        <View style={{ height: 2, backgroundColor: '#FFFFFF', marginVertical: 20 }} />
+        <View style={{ height: pixelToHeight(2), backgroundColor: '#FFFFFF', marginVertical: pixelToHeight(20) }} />
         
         {/* Навигационные элементы */}
         <TouchableOpacity 
@@ -165,7 +167,7 @@ function SettingsParameters({ navigation }) {
           onPress={() => navigation.navigate('VPNSettings')}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Выбор режима VPN</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -175,7 +177,7 @@ function SettingsParameters({ navigation }) {
           onPress={() => navigation.navigate('ConnectionSettings')}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Настройки подключения</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -187,54 +189,54 @@ function SettingsParameters({ navigation }) {
 
 const styles = StyleSheet.create({
   modeTitle: {
-    fontSize: 24,
+    fontSize: pixelToHeight(24),
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
-    marginBottom: 30,
-    marginTop: 15
+    marginBottom: pixelToHeight(30),
+    marginTop: pixelToHeight(15)
   },
   togglesContainer: {
     width: '100%',
-    paddingHorizontal: 10,
+    paddingHorizontal: pixelToHeight(10),
   },
   toggleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: pixelToHeight(4),
     marginBottom: 0,
   },
   toggleText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     fontWeight: '500',
     flex: 1,
-    marginRight: 16,
+    marginRight: pixelToHeight(16),
   },
   divider: {
-    minHeight: 2,
-    height: 2,
-    minWidth: Dimensions.get('window').width - 40,
+    minHeight: pixelToHeight(2),
+    height: pixelToHeight(2),
+    minWidth: pixelToHeight(Dimensions.get('window').width - 40),
     backgroundColor: 'grey',
-    marginTop: 20,
-    marginBottom: -20
+    marginTop: pixelToHeight(20),
+    marginBottom: pixelToHeight(-20)
   },
   navRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    marginBottom: 4,
+    paddingHorizontal: pixelToHeight(10),
+    marginBottom: pixelToHeight(4),
   },
   navText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     fontWeight: '500',
   },
   arrow: {
     color: '#723CEB',
-    fontSize: 20,
+    fontSize: pixelToHeight(20),
     fontWeight: 'bold',
   },
 });

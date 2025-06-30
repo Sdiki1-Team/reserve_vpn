@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ImageBackground, Image, StyleSheet } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
 import BackButton from './BackButton';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 function FamilySubscribeScreen({ navigation }) {
   return (
@@ -40,44 +42,44 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 25,
+    paddingTop: pixelToHeight(25),
   },
   header: {
-    fontSize: 24,
+    fontSize: pixelToHeight(24),
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 30,
+    marginBottom: pixelToHeight(30),
   },
   familyImage: {
     width: '80%', // Растягиваем на 80% ширины экрана
-    height: 200, // Установите фиксированную высоту
-    marginBottom: 20,
+    height: pixelToHeight(200), // Установите фиксированную высоту
+    marginBottom: pixelToHeight(20),
   },
   userInfoContainer: {
     flexDirection: 'row', // Располагаем блоки в ряд
     alignItems: 'center',
     width: '100%', // Занимаем всю ширину
-    paddingHorizontal: 20,
+    paddingHorizontal: pixelToHeight(20),
   },
   userDetails: {
     flex: 1, // Занимаем оставшееся пространство
     alignItems: 'flex-start',
   },
   userLabel: {
-    fontSize: 18,
+    fontSize: pixelToHeight(18),
     fontWeight: 'bold',
     color: 'white',
   },
   deviceText: {
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     color: '#D3D3D3', // Светло-серый цвет
-    marginLeft: 15, // Смещение вправо
+    marginLeft: pixelToHeight(15), // Смещение вправо
   },
   deleteButton: {
     backgroundColor: '#723CEB',
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    paddingVertical: pixelToHeight(5),
+    paddingHorizontal: pixelToHeight(15),
+    borderRadius: pixelToHeight(5),
   },
   buttonText: {
     color: 'white',

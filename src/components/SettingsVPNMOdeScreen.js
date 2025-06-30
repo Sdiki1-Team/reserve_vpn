@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Animated, Di
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { commonStyles } from '../styles/commonStyles';
 import BackButton from './BackButton';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 const modes = [
   {
@@ -63,7 +65,7 @@ function SettingsVPNModeScreen({ navigation }) {
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[commonStyles.container, { paddingTop: 80, marginTop: 0 }]}>
+      <View style={[commonStyles.container, { paddingTop: pixelToHeight(80), marginTop: 0 }]}>
         <Text style={[commonStyles.titleText, commonStyles.absouluteCenteredTitile]}>Выбор режима VPN</Text>
         <BackButton onPress={() => navigation.goBack()} />
 
@@ -95,23 +97,23 @@ function SettingsVPNModeScreen({ navigation }) {
 const styles = StyleSheet.create({
   modeBlock: {
     backgroundColor: '#191920',
-    borderRadius: 15,
-    padding: 15,
-    marginVertical: 10,
-    width: Dimensions.get('window').width / 100 * 95,
+    borderRadius: pixelToHeight(15),
+    padding: pixelToHeight(15),
+    marginVertical: pixelToHeight(10),
+    width: pixelToHeight(Dimensions.get('window').width / 100 * 95),
     alignItems: 'flex-start',
   },
   modeTitle: {
-    fontSize: 15,
+    fontSize: pixelToHeight(15),
     color: '#FFFFFF',
     marginBottom: 1,
   },
   modeDescription: {
-    fontSize: 15,
+    fontSize: pixelToHeight(15),
     color: '#7F8E9D',
   },
   modeDetails: {
-    fontSize: 15,
+    fontSize: pixelToHeight(15),
     color: '#723CEB',
   },
 });

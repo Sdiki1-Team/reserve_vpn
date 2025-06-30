@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Modal, Dimen
 import { commonStyles } from '../styles/commonStyles';
 import BackButton from './BackButton';
 import TimePicker from './TimePicker';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 function SettingsConnectionScreen({ navigation }) {
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
@@ -31,7 +33,7 @@ function SettingsConnectionScreen({ navigation }) {
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[commonStyles.ontainer, { paddingTop: 25 }]}>
+      <View style={[commonStyles.ontainer, { paddingTop: pixelToHeight(25) }]}>
         <Text style={commonStyles.titleText}>Настройки сети</Text>
         <BackButton onPress={() => navigation.goBack()} />
 
@@ -100,7 +102,7 @@ function SettingsConnectionScreen({ navigation }) {
           onPress={() => navigation.navigate('AppSelection')}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Приложения</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -110,7 +112,7 @@ function SettingsConnectionScreen({ navigation }) {
           onPress={() => navigation.navigate('SiteSelection')}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Сайты</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -134,9 +136,9 @@ function SettingsConnectionScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   titleText: {
-    marginTop: 20,
+    marginTop: pixelToHeight(20),
     color: 'white',
-    fontSize: 20,
+    fontSize: pixelToHeight(20),
     fontWeight: 'bold',
     textAlign: 'center',
 
@@ -145,37 +147,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    marginBottom: 4,
+    paddingHorizontal: pixelToHeight(10),
+    marginBottom: pixelToHeight(4),
   },
   navText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     fontWeight: '500',
   },
   arrow: {
     color: '#723CEB',
-    fontSize: 20,
+    fontSize: pixelToHeight(20),
     fontWeight: 'bold',
   },
   timeContainer: {
     display: 'flex',
-    width: Dimensions.get('window').width - 30,
+    width: pixelToHeight(Dimensions.get('window').width - 30),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: pixelToHeight(10),
   },
   labelText: {
     color: '#D3D3D3', // Светло-серый
-    marginRight: 10,
+    marginRight: pixelToHeight(10),
   },
   timeBlock: {
     borderColor: '#723CEB',
-    borderWidth: 2,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    maxWidth: 100,
+    borderWidth: pixelToHeight(2),
+    borderRadius: pixelToHeight(5),
+    paddingHorizontal: pixelToHeight(10),
+    maxWidth: pixelToHeight(100),
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
@@ -186,14 +188,14 @@ const styles = StyleSheet.create({
   autoConnectContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 20,
+    marginVertical: pixelToHeight(20),
   },
   autoConnectBlock: {
     flex: 1,
     borderColor: 'transparent',
-    borderWidth: 2,
-    borderRadius: 5,
-    padding: 10,
+    borderWidth: pixelToHeight(2),
+    borderRadius: pixelToHeight(5),
+    padding: pixelToHeight(10),
     alignItems: 'center',
   },
   activeBlock: {

@@ -1,5 +1,12 @@
 import { Dimensions, StyleSheet } from 'react-native';
 
+const { height } = Dimensions.get('screen');
+console.log(height);
+
+export const pixelToHeight = (pixels) => {
+  return (pixels / 800) * height;
+};
+
 export const commonStyles = StyleSheet.create({
   // Основные контейнеры
   container: {

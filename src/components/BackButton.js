@@ -1,5 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 const BackButton = ({ onPress }) => {
   return (
@@ -12,20 +14,20 @@ const BackButton = ({ onPress }) => {
 const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
-    top: 20,
-    left: 20,
+    top: pixelToHeight(20),
+    left: pixelToHeight(20),
     backgroundColor: '#191919',
-    borderRadius: 5,
-    padding: 10,
+    borderRadius: pixelToHeight(5),
+    padding: pixelToHeight(10),
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 40,
-    minHeight: 40,
+    minWidth: pixelToHeight(40),
+    minHeight: pixelToHeight(40),
   },
   backButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
   },
 });
 

@@ -4,6 +4,8 @@ import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Modal } from
 import { commonStyles } from '../styles/commonStyles';
 import ToggleSwitch from './ToggleSwitch';
 import { Linking } from 'react-native';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 function SettingsParametersScreen({ navigation }) {
   const [deviceModalVisible, setDeviceModalVisible] = useState(false);
@@ -67,7 +69,7 @@ function SettingsParametersScreen({ navigation }) {
           onPress={() => setDeviceModalVisible(true)}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Настройки подключения</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -109,7 +111,7 @@ function SettingsParametersScreen({ navigation }) {
           onPress={() => Linking.openURL('https://www.google.com')}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Поддержка</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -118,7 +120,7 @@ function SettingsParametersScreen({ navigation }) {
           onPress={() => Linking.openURL('https://www.google.com')}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Оцени приложение</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -127,7 +129,7 @@ function SettingsParametersScreen({ navigation }) {
           onPress={() => setLanguageModalVisible(true)}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Язык</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -136,7 +138,7 @@ function SettingsParametersScreen({ navigation }) {
           onPress={() => Linking.openURL('https://www.google.com')}
         >
           <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>О нас</Text>
-          <View style={{ width: 30, alignItems: 'flex-end' }}>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
@@ -157,83 +159,83 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: pixelToHeight(4),
     marginBottom: 0,
   },
   toggleText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     fontWeight: '500',
     flex: 1,
-    marginRight: 16,
+    marginRight: pixelToHeight(16),
   },
   navRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    marginBottom: 4,
+    paddingHorizontal: pixelToHeight(10),
+    marginBottom: pixelToHeight(4),
   },
   navText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     fontWeight: '500',
   },
   arrow: {
     color: '#723CEB',
-    fontSize: 20,
+    fontSize: pixelToHeight(20),
     fontWeight: 'bold',
   },
   container: {
     flex: 1,
     alignItems: 'center',
-    padding: 20,
+    padding: pixelToHeight(20),
   },
   togglesContainer: {
     width: '100%',
   },
   familyButton: {
-    marginTop: 25,
-    marginBottom: 40,
+    marginTop: pixelToHeight(25),
+    marginBottom: pixelToHeight(40),
   },
   purpleButton: {
     backgroundColor: '#723CEB',
-    minWidth: 210,
-    paddingVertical: 5,
+    minWidth: pixelToHeight(210),
+    paddingVertical: pixelToHeight(5),
     fontWeight: '200',
-    borderRadius: 5,
-    marginVertical: 10,
+    borderRadius: pixelToHeight(5),
+    marginVertical: pixelToHeight(10),
   },
   buttonText: {
     color: 'white',
     textAlign: 'center',
   },
   link: {
-    marginVertical: 5,
+    marginVertical: pixelToHeight(5),
   },
   linkText: {
     color: '#723CEB',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
   },
   divider: {
-    height: 2,
+    height: pixelToHeight(2),
     backgroundColor: 'grey',
-    marginVertical: 20,
+    marginVertical: pixelToHeight(20),
     width: '100%',
   },
   modalView: {
-    margin: 20,
+    margin: pixelToHeight(20),
     backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 35,
+    borderRadius: pixelToHeight(10),
+    padding: pixelToHeight(35),
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: pixelToHeight(2),
     },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: pixelToHeight(4),
     elevation: 5,
   },
 });

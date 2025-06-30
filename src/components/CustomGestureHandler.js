@@ -8,6 +8,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CustomGestureHandler = ({ children, onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown }) => {

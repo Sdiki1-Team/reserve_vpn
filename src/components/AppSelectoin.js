@@ -1,6 +1,7 @@
 // src/components/AppSelection.js
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { pixelToHeight } from '../styles/commonStyles';
 import BackButton from './BackButton';
 
 const AppSelection = ({ navigation }) => {
@@ -22,8 +23,8 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#D3D3D3',
-    fontSize: 24,
-    marginBottom: 20,
+    fontSize: pixelToHeight(24),
+    marginBottom: pixelToHeight(20),
   },
 });
 

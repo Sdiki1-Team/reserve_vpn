@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ImageBackground, TextInput, Modal, StyleSheet, ScrollView, Dimensions, Image } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 function ProfileScreen({ navigation }) {
   const [activeTariff, setActiveTariff] = useState('Базовый');
@@ -8,6 +10,7 @@ function ProfileScreen({ navigation }) {
   const [promoCode, setPromoCode] = useState('');
   const [showFeaturesModal, setShowFeaturesModal] = useState(false);
   const [showFeatureDetail, setShowFeatureDetail] = useState(null);
+  
 
   const tariffs = {
     'Базовый': {
@@ -88,7 +91,7 @@ function ProfileScreen({ navigation }) {
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <ScrollView contentContainerStyle={[commonStyles.container, {padding: 20}]}>
+      <ScrollView contentContainerStyle={[commonStyles.container, {padding: pixelToHeight(20)}]}>
         <View style={styles.header}>
           <Text style={styles.userName}>Иван Иванов</Text>
           <Text style={styles.userEmail}>mail@example.com</Text>
@@ -244,80 +247,80 @@ function ProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: pixelToHeight(20),
   },
   userName: {
-    fontSize: 24,
+    fontSize: pixelToHeight(24),
     fontWeight: 'bold',
     color: '#fff',
   },
   userEmail: {
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     color: '#888',
   },
   promoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: pixelToHeight(20),
     display: 'flex',
     alignItems: 'center',
   },
   promoInputContainer: {
     flex: 1,
     flexDirection: 'row',
-    borderWidth: 1,
+    borderWidth: pixelToHeight(1),
     borderColor: '#333',
-    borderRadius: 8,
+    borderRadius: pixelToHeight(8),
     overflow: 'hidden',
-    marginRight: 10,
+    marginRight: pixelToHeight(10),
     display: 'flex',
     alignItems: 'center',
   },
   promoInput: {
     flex: 1,
-    padding: 10,
-    fontSize: 14,
-    height: 40,
+    padding: pixelToHeight(10),
+    fontSize: pixelToHeight(14),
+    height: pixelToHeight(40),
     color: 'white',
     placeholderTextColor: 'white',
   },
   applyButton: {
     backgroundColor: '#723CEB',
-    margin: 5,
-    maxHeight: 25,
+    margin: pixelToHeight(5),
+    maxHeight: pixelToHeight(25),
     justifyContent: 'center',
-    borderRadius: 5,
-    padding: 5,
-    paddingHorizontal: 10
+    borderRadius: pixelToHeight(5),
+    padding: pixelToHeight(5),
+    paddingHorizontal: pixelToHeight(10)
   },
   applyText: {
     color: 'white',
-    fontsize: 13,
+    fontsize: pixelToHeight(13),
   },
   daysContainer: {
-    width: 60,
-    height: 60,
+    width: pixelToHeight(60),
+    height: pixelToHeight(60),
     backgroundColor: '#191919',
-    borderRadius: 15,
+    borderRadius: pixelToHeight(15),
     justifyContent: 'center',
     alignItems: 'center',
   },
   daysNumber: {
-    fontSize: 24,
+    fontSize: pixelToHeight(24),
     fontWeight: '300',
     color: 'white',
   },
   daysText: {
-    fontSize: 12,
-    marginTop: -5,
+    fontSize: pixelToHeight(12),
+    marginTop: pixelToHeight(-5),
     color: 'grey',
   },
   referralBox: {
-    borderWidth: 1,
+    borderWidth: pixelToHeight(1),
     borderColor: '#723CEB',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
+    borderRadius: pixelToHeight(8),
+    padding: pixelToHeight(15),
+    marginBottom: pixelToHeight(20),
   },
   referralText: {
     color: 'white',
@@ -328,36 +331,36 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     color: 'white',
-    marginBottom: 15,
+    marginBottom: pixelToHeight(15),
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: pixelToHeight(20),
     fontWeight: 'bold',
     color: 'white',
   },
   featuresLink: {
     color: '#888',
-    fontSize: 14,
+    fontSize: pixelToHeight(14),
   },
   tariffSelector: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#191919',
-    borderRadius: 10,
-    height: 35,
-    marginBottom: 20,
+    borderRadius: pixelToHeight(10),
+    height: pixelToHeight(35),
+    marginBottom: pixelToHeight(35),
     overflow: 'hidden',
   },
   tariffTab: {
-    width: (Dimensions.get('window').width - 40) / 3 - 10,
+    width: pixelToHeight((Dimensions.get('window').width - 40) / 3 - 10),
     justifyContent: 'center',
     alignItems: 'center',
   },
   activeTariffTab: {
     backgroundColor: '#723CEB',
-    marginVertical: 4,
-    borderRadius: 8,
+    marginVertical: pixelToHeight(4),
+    borderRadius: pixelToHeight(8),
   },
   tariffText: {
     color: 'white',
@@ -376,111 +379,111 @@ const styles = StyleSheet.create({
   tariffDescription: {
     color: '#888',
     textAlign: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 20,
+    marginBottom: pixelToHeight(20),
+    paddingHorizontal: pixelToHeight(20),
   },
   featuresContainer: {
-    marginBottom: 10,
+    marginBottom: pixelToHeight(10),
   },
   featureItem: {
     flexDirection: 'row',
     justifyContent: 'start',
     alignItems: 'center',
-    paddingVertical: 3,
+    paddingVertical: pixelToHeight(3),
   },
   featureLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   featureBullet: {
-    width: 7,
-    height: 7,
-    borderRadius: 5,
+    width: pixelToHeight(7),
+    height: pixelToHeight(7),
+    borderRadius: pixelToHeight(5),
     backgroundColor: '#723CEB',
-    marginRight: 10,
+    marginRight: pixelToHeight(10),
   },
   featureText: {
-    fontSize: 14,
+    fontSize: pixelToHeight(14),
     color: 'white',
   },
   questionMark: {
-    width: 15,
-    height: 15,
-    borderRadius: 10,
+    width: pixelToHeight(15),
+    height: pixelToHeight(15),
+    borderRadius: pixelToHeight(10),
     backgroundColor: '#191919',
     borderColor: '#723CEB',
-    borderWidth: 1,
-    marginLeft: 5,
+    borderWidth: pixelToHeight(1),
+    marginLeft: pixelToHeight(5),
     justifyContent: 'center',
     alignItems: 'center',
   },
   questionText: {
     color: '#723CEB',
     fontWeight: 'bold',
-    fontSize: 10,
+    fontSize: pixelToHeight(10),
   },
   priceContainer: {
     flexDirection: 'row',
     justifyContent: 'start',
     alignItems: 'baseline',
-    marginBottom: 20,
+    marginBottom: pixelToHeight(20),
   },
   currentPrice: {
-    fontSize: 28,
+    fontSize: pixelToHeight(28),
     fontWeight: '300',
-    marginRight: 10,
+    marginRight: pixelToHeight(10),
     color: 'white',
   },
   oldPrice: {
-    fontSize: 18,
+    fontSize: pixelToHeight(18),
     color: '#888',
     textDecorationLine: 'line-through',
     textDecorationColor: '#723CEB',
   },
   subscribeButton: {
     backgroundColor: '#723CEB',
-    borderRadius: 10,
-    paddingVertical: 5,
-    marginHorizontal: 20,
+    borderRadius: pixelToHeight(10),
+    paddingVertical: pixelToHeight(5),
+    marginHorizontal: pixelToHeight(20),
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: pixelToHeight(20),
   },
   subscribeText: {
     color: 'white',
     fontWeight: '400',
-    fontSize: 18,
+    fontSize: pixelToHeight(18),
   },
   periodSelector: {
     flexDirection: 'row',
     backgroundColor: '#191919',
     justifyContent: 'space-between',
-    borderRadius: 10,
-    height: 35,
+    borderRadius: pixelToHeight(10),
+    height: pixelToHeight(35),
     overflow: 'hidden',
   },
   periodTab: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: (Dimensions.get('window').width - 40) / 3 - 10,
+    width: pixelToHeight((Dimensions.get('window').width - 40) / 3 - 10),
 
   },
   activePeriodTab: {
     backgroundColor: '#723CEB',
-    marginVertical: 3,
-    borderRadius: 8,
+    marginVertical: pixelToHeight(3),
+    borderRadius: pixelToHeight(8),
   },
   periodText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: pixelToHeight(14),
     fontWeight: 400 
   },
   activePeriodText: {
     color: 'white',
     fontWeight: '400',
-    fontSize: 14,
+    fontSize: pixelToHeight(14),
   },
   periodDivider: {
-    width: 1,
+    width: pixelToHeight(1),
     backgroundColor: '#999',
     height: '60%',
     alignSelf: 'center',
@@ -495,47 +498,47 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: '#191919',
     color: 'white',
-    borderRadius: 15,
-    padding: 20,
+    borderRadius: pixelToHeight(15),
+    padding: pixelToHeight(20),
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: pixelToHeight(20),
     color: 'white',
     fontWeight: '700',
-    marginBottom: 30,
+    marginBottom: pixelToHeight(30),
     textAlign: 'center',
   },
   tariffFeatures: {
-    marginBottom: 15,
+    marginBottom: pixelToHeight(15),
     color: 'white',
   },
   tariffName: {
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: pixelToHeight(5),
   },
   modalFeature: {
-    marginLeft: 10,
-    marginBottom: 3,
+    marginLeft: pixelToHeight(10),
+    marginBottom: pixelToHeight(3),
   },
   featureDescription: {
     color: 'white',
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 20,
+    fontSize: pixelToHeight(15),
+    lineHeight: pixelToHeight(22),
+    marginBottom: pixelToHeight(20),
   },
   closeButton: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: pixelToHeight(10),
+    right: pixelToHeight(10),
     backgroundColor: '#191919',
-    borderRadius: 5,
-    padding: 5,
-    borderWidth: 1,
+    borderRadius: pixelToHeight(5),
+    padding: pixelToHeight(5),
+    borderWidth: pixelToHeight(1),
     borderColor: '#',
   },
   closeIcon: {
-    width: 20,
-    height: 20,
+    width: pixelToHeight(20),
+    height: pixelToHeight(20),
     alignSelf: 'center',
   },
   closeText: {

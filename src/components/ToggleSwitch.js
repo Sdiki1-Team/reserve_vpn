@@ -1,5 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { View, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 const ToggleSwitch = ({ value, onValueChange, style }) => {
   const translateX = useRef(new Animated.Value(value ? 20 : 0)).current;
@@ -43,18 +45,18 @@ const ToggleSwitch = ({ value, onValueChange, style }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 44,
-    height: 24,
-    borderRadius: 12,
-    padding: 2,
+    width: pixelToHeight(44),
+    height: pixelToHeight(24),
+    borderRadius: pixelToHeight(12),
+    padding: pixelToHeight(2),
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: pixelToHeight(1),
     backgroundColor: '#191919',
   },
   thumb: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: pixelToHeight(20),
+    height: pixelToHeight(20),
+    borderRadius: pixelToHeight(10),
     backgroundColor: '#FFFFFF',
     elevation: 5,
   },

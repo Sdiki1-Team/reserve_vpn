@@ -2,6 +2,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import BackButton from './BackButton';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 const SiteSelection = ({ navigation }) => {
   return (
@@ -22,8 +24,8 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#D3D3D3',
-    fontSize: 24,
-    marginBottom: 20,
+    fontSize: pixelToHeight(24),
+    marginBottom: pixelToHeight(20),
   },
 });
 

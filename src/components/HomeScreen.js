@@ -4,6 +4,8 @@ import { CircularProgress } from 'react-native-circular-progress';
 import { commonStyles } from '../styles/commonStyles';
 import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
 import LinearGradient from 'react-native-linear-gradient';
+import { pixelToHeight } from '../styles/commonStyles';
+
 
 const { width } = Dimensions.get('window');
 
@@ -170,9 +172,9 @@ function HomeScreen({ navigation }) {
     const fill = calculateFill(speed);
     const angle = 132.5 + (285 * fill / 100);
     const radian = (angle * Math.PI) / 180;
-    const radius = 105; // Радиус для указателя (внутренний радиус шкалы)
-    const pointerX = 110 + radius * Math.cos(radian);
-    const pointerY = 110 + radius * Math.sin(radian);
+    const radius = pixelToHeight(105); // Радиус для указателя (внутренний радиус шкалы)
+    const pointerX = pixelToHeight(110) + radius * Math.cos(radian);
+    const pointerY =pixelToHeight(110) + radius * Math.sin(radian);
 
     return (
       <TouchableOpacity 
@@ -185,8 +187,8 @@ function HomeScreen({ navigation }) {
           opacity: speedometerScale, // Применяем анимацию к непрозрачности
         }}>
           <CircularProgress
-            size={220}
-            width={8}
+            size={pixelToHeight(220)}
+            width={pixelToHeight(8)}
             fill={fill}
             tintColor="white"
             backgroundColor="#333"
@@ -195,11 +197,11 @@ function HomeScreen({ navigation }) {
             lineCap="round"
             children={() => (
               <View style={styles.speedValueContainer}>
-                <Text style={[styles.speedTypeLabel, { fontSize: 14 }]}>{speedLabel}</Text>
+                <Text style={[styles.speedTypeLabel, { fontSize: pixelToHeight(14) }]}>{speedLabel}</Text>
                 <Text style={[styles.speedValue, { color: speedColor }]}>
                   {speed.toFixed(1)}
                 </Text>
-                <Text style={[styles.speedUnit, { fontSize: 14 }]}>Мб/с</Text>
+                <Text style={[styles.speedUnit, { fontSize: pixelToHeight(14) }]}>Мб/с</Text>
               </View>
             )}
           />
@@ -209,12 +211,12 @@ function HomeScreen({ navigation }) {
             style={[
               styles.pointer, 
               { 
-                left: pointerX - 10,
-                top: pointerY - 10,
+                left: pointerX - pixelToHeight(10),
+                top: pointerY - pixelToHeight(10),
                 shadowColor: '#FFF',
                 shadowOffset: { width: 0, height: 0 },
                 shadowOpacity: 0.8,
-                shadowRadius: 5,
+                shadowRadius: pixelToHeight(5),
                 elevation: 5,
               }
             ]}
@@ -237,9 +239,9 @@ function HomeScreen({ navigation }) {
     if (showSpeedometer) return null;
 
     const buttonStyle = {
-      width: 120,
-      height: 120,
-      borderRadius: 60,
+      width: pixelToHeight(120),
+      height: pixelToHeight(120),
+      borderRadius: pixelToHeight(60),
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: connected ? 'transparent' : '#191919',
@@ -326,7 +328,7 @@ function HomeScreen({ navigation }) {
       resizeMode="stretch"
     >
       <View style={[styles.container]}>
-        <Text style={[commonStyles.titleText, { marginTop: 0, marginBottom: 10 }]}>Reserve VPN</Text>
+        <Text style={[commonStyles.titleText, { marginTop: 0, marginBottom: pixelToHeight(10) }]}>Reserve VPN</Text>
         
         {/* Панель сервера */}
         {renderServerPanel()}
@@ -434,7 +436,7 @@ function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: pixelToHeight(20),
   },
   serverBar: {
     display: 'flex',
@@ -442,126 +444,126 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#191919',
-    borderRadius: 50,
-    padding: 10,
-    paddingHorizontal: 20, 
-    marginBottom: 5,
+    borderRadius: pixelToHeight(50),
+    padding: pixelToHeight(10),
+    paddingHorizontal: pixelToHeight(20), 
+    marginBottom: pixelToHeight(5),
   },
   serverLabel: {
     color: '#AAAAAA',
-    fontSize: 14,
+    fontSize: pixelToHeight(14),
   },
   divider: {
-    height: 20,
-    width: 1,
+    height: pixelToHeight(20),
+    width: pixelToHeight(1),
     backgroundColor: '#444',
-    marginHorizontal: 12,
+    marginHorizontal: pixelToHeight(12),
   },
   serverName: {
     color: 'white',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     fontWeight: 'bold',
-    marginRight: 15,
+    marginRight: pixelToHeight(15),
   },
   pingContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    height: 20,
+    height: pixelToHeight(20),
   },
   pingBar: {
-    width: 3,
-    borderRadius: 2,
-    marginHorizontal: 1,
+    width: pixelToHeight(3),
+    borderRadius: pixelToHeight(2),
+    marginHorizontal: pixelToHeight(1),
   },
   pingText: {
     color: 'white',
-    marginLeft: 8,
-    fontSize: 12,
+    marginLeft: pixelToHeight(8),
+    fontSize: pixelToHeight(12),
   },
   ipBlock: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingHorizontal: 30,
+    paddingHorizontal: pixelToHeight(30),
     flexDirection: 'row',
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 15,
+    borderRadius: pixelToHeight(10),
+    padding: pixelToHeight(15),
+    marginVertical: pixelToHeight(15),
     alignItems: 'center',
     backgroundColor: 'rgba(25, 25, 25, 0.7)',
   },
   vpnIpInner: {
-    paddingLeft: 10,
+    paddingLeft: pixelToHeight(10),
   },
   ipLabel: {
     color: 'white',
-    fontSize: 18,
+    fontSize: pixelToHeight(18),
     fontWeight: 'bold',
   },
   ipAddress: {
     color: '#AAAAAA',
-    fontSize: 14,
+    fontSize: pixelToHeight(14),
   },
   arrowContainer: {
-    marginHorizontal: 10,
+    marginHorizontal: pixelToHeight(10),
   },
   arrowIcon: {
     color: 'white',
-    fontSize: 24,
+    fontSize: pixelToHeight(24),
     fontWeight: 'bold',
   },
   speedContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: width * 0.9,
-    marginVertical: 15,
+    width: pixelToHeight(width * 0.9),
+    marginVertical: pixelToHeight(15),
   },
   speedBlock: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
-    borderRadius: 8,
-    padding: 10,
-    width: width * 0.42,
+    borderRadius: pixelToHeight(8),
+    padding: pixelToHeight(10),
+    width: pixelToHeight(width * 0.42),
   },
   speedBlockActive: {
     borderColor: '#723CEB',
     borderWidth: 1,
   },
   speedIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 8,
+    width: pixelToHeight(20),
+    height: pixelToHeight(20),
+    marginRight: pixelToHeight(8),
     resizeMode: 'contain',
   },
   speedLabel: {
     color: '#AAAAAA',
-    fontSize: 12,
+    fontSize: pixelToHeight(12),
   },
   speedValueText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: pixelToHeight(14),
     fontWeight: 'bold',
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 100,
+    bottom: pixelToHeight(100),
     left: 0,
     right: 0,
     alignItems: 'center',
   },
   connectButton: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 2,
+    width: pixelToHeight(120),
+    height: pixelToHeight(120),
+    borderRadius: pixelToHeight(60),
+    borderWidth: pixelToHeight(2),
     justifyContent: 'center',
     alignItems: 'center',
   },
   connectButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: pixelToHeight(16),
     fontWeight: 'bold',
   },
   speedValueContainer: {
@@ -570,65 +572,65 @@ const styles = StyleSheet.create({
   },
   speedTypeLabel: {
     color: '#CCCCCC',
-    fontSize: 14,
-    marginBottom: 5,
+    fontSize: pixelToHeight(14),
+    marginBottom: pixelToHeight(5),
   },
   speedValue: {
-    fontSize: 32,
+    fontSize: pixelToHeight(32),
     fontWeight: 'bold',
   },
   speedUnit: {
-    fontSize: 14,
+    fontSize: pixelToHeight(14),
     color: '#AAAAAA',
-    marginTop: 2,
+    marginTop: pixelToHeight(2),
   },
   wave: {
     position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 1,
+    width: pixelToHeight(120),
+    height: pixelToHeight(120),
+    borderRadius: pixelToHeight(60),
+    borderWidth: pixelToHeight(1),
     top: '50%',
     left: '50%',
-    marginTop: -60,
-    marginLeft: -60,
+    marginTop: pixelToHeight(-60),
+    marginLeft: pixelToHeight(-60),
   },
   verticalDivider: {
     width: 1,
-    height: 30,
+    height: pixelToHeight(30),
     backgroundColor: '#CCCCCC',
-    marginHorizontal: 5,
+    marginHorizontal: pixelToHeight(5),
     alignSelf: 'center',
   },
   pointer: {
     position: 'absolute',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: pixelToHeight(20),
+    height: pixelToHeight(20),
+    borderRadius: pixelToHeight(10),
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
   },
   pointerInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: pixelToHeight(10),
+    height: pixelToHeight(10),
+    borderRadius: pixelToHeight(5),
     backgroundColor: 'white',
   },
   connectionTimeContainer: {
     alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 10,
+    marginTop: pixelToHeight(30),
+    marginBottom: pixelToHeight(10),
   },
   connectionTimeLabel: {
     color: '#AAAAAA',
-    fontSize: 14,
-    marginBottom: -5,
-    marginTop: 5,
+    fontSize: pixelToHeight(14),
+    marginBottom: pixelToHeight(-5),
+    marginTop: pixelToHeight(5),
   },
   connectionTime: {
     color: '#FFFFFF',
-    fontSize: 26,
+    fontSize: pixelToHeight(26),
     fontWeight: 'bold',
   },
   ipSection: {
@@ -639,14 +641,14 @@ const styles = StyleSheet.create({
   },
   marksContainer: {
     position: 'absolute',
-    width: 220,
-    height: 220,
+    width: pixelToHeight(220),
+    height: pixelToHeight(220),
     top: 0,
     left: 0,
   },
   markText: {
-    fontSize: 12,
-    width: 20,
+    fontSize: pixelToHeight(12),
+    width: pixelToHeight(20),
     textAlign: 'center',
   },
   absoluteSpeedometer: {
@@ -655,7 +657,7 @@ const styles = StyleSheet.create({
     left: '50%',
     alignItems: 'center',
     justifyContent: 'center',
-    transform: [{ translateX: -110 }, { translateY: -180 }], // Центрируем спидометр
+    transform: [{ translateX: pixelToHeight(-110) }, { translateY: pixelToHeight(-180) }], // Центрируем спидометр
   },
 });
 
