@@ -4,6 +4,9 @@ const { height } = Dimensions.get('screen');
 console.log(height);
 
 export const pixelToHeight = (pixels) => {
+  if (pixels === 1){
+     return 1;
+  }
   return (pixels / 800) * height;
 };
 

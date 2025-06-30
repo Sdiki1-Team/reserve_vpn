@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
   speedContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: pixelToHeight(width * 0.9),
+    width: width * 0.9,
     marginVertical: pixelToHeight(15),
   },
   speedBlock: {
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderRadius: pixelToHeight(8),
     padding: pixelToHeight(10),
-    width: pixelToHeight(width * 0.42),
+    width: width * 0.42,
   },
   speedBlockActive: {
     borderColor: '#723CEB',
