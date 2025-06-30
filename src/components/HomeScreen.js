@@ -361,7 +361,7 @@ function HomeScreen({ navigation }) {
       resizeMode="stretch"
     >
       <View style={[styles.container]}>
-        <Text style={[commonStyles.titleText, { marginTop: 0, marginBottom: pixelToHeight(10) }]}>Reserve VPN</Text>
+        <Text style={[commonStyles.titleText, { marginTop: pixelToHeight(20), marginBottom: pixelToHeight(10) }]}>Reserve VPN</Text>
         
         {/* Панель сервера */}
         {renderServerPanel()}
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: pixelToHeight(100),
+    bottom: pixelToHeight(80),
     left: 0,
     right: 0,
     alignItems: 'center',
