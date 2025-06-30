@@ -272,9 +272,9 @@ function HomeScreen({ navigation }) {
     if (showSpeedometer) return null;
 
     const buttonStyle = {
-      width: pixelToHeight(120),
-      height: pixelToHeight(120),
-      borderRadius: pixelToHeight(60),
+      width: pixelToHeight(150),
+      height: pixelToHeight(150),
+      borderRadius: pixelToHeight(75),
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: connected ? 'transparent' : '#191919',
@@ -587,9 +587,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   connectButton: {
-    width: pixelToHeight(120),
-    height: pixelToHeight(120),
-    borderRadius: pixelToHeight(60),
+    width: pixelToHeight(150),
+    height: pixelToHeight(150),
+    borderRadius: pixelToHeight(75),
     borderWidth: pixelToHeight(2),
     justifyContent: 'center',
     alignItems: 'center',
@@ -619,9 +619,9 @@ const styles = StyleSheet.create({
   },
   wave: {
     position: 'absolute',
-    width: pixelToHeight(120),
-    height: pixelToHeight(120),
-    borderRadius: pixelToHeight(60),
+    width: pixelToHeight(150),
+    height: pixelToHeight(150),
+    borderRadius: pixelToHeight(75),
     borderWidth: pixelToHeight(1),
     top: '50%',
     left: '50%',
