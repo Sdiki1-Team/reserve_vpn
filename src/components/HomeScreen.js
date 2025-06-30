@@ -625,8 +625,8 @@ const styles = StyleSheet.create({
     borderWidth: pixelToHeight(1),
     top: '50%',
     left: '50%',
-    marginTop: pixelToHeight(-60),
-    marginLeft: pixelToHeight(-60),
+    marginTop: pixelToHeight(-75),
+    marginLeft: pixelToHeight(-75),
   },
   verticalDivider: {
     width: 1,
