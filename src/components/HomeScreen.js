@@ -174,7 +174,10 @@ function HomeScreen({ navigation }) {
     const radian = (angle * Math.PI) / 180;
     const radius = pixelToHeight(105); // Радиус для указателя (внутренний радиус шкалы)
     const pointerX = pixelToHeight(110) + radius * Math.cos(radian);
-    const pointerY =pixelToHeight(110) + radius * Math.sin(radian);
+    const pointerY = pixelToHeight(110) + radius * Math.sin(radian);
+
+    // Метки для шкалы спидометра
+    const marks = [[0, 0], [5, 1], [10, 2], [15, 3], [20, 4], [30, 5], [50, 6], [75, 7], [100, 8]];
 
     return (
       <TouchableOpacity 
@@ -205,6 +208,36 @@ function HomeScreen({ navigation }) {
               </View>
             )}
           />
+
+          {/* Метки шкалы */}
+          <View style={styles.marksContainer}>
+          {marks.map((value) => {
+            // Рассчитываем положение метки на окружности
+            const angle = 52 - ((8 - value[1]) / 8) * 285;
+            const radian = (angle * Math.PI) / 180;
+            const radius = 130;
+            const x = 100 + radius * Math.cos(radian);
+            const y = 100 + radius * Math.sin(radian);
+            
+            return (
+              <Text
+                key={value[0]}
+                style={[
+                  styles.markText,
+                  {
+                    position: 'absolute',
+                    left: x,
+                    top: y,
+                    color: value[0] <= speed ? '#FFFFFF' : '#AAAAAA',
+                    fontWeight: value[0] <= speed ? 'bold' : 'normal'
+                  }
+                ]}
+              >
+                {value[0]}
+              </Text>
+            );
+          })}
+        </View>
           
           {/* Указатель */}
           <Animated.View 
