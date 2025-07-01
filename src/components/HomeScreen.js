@@ -16,10 +16,10 @@ function HomeScreen({ navigation }) {
   const [showSpeedometer, setShowSpeedometer] = useState(false);
   const [currentServer, setCurrentServer] = useState(null);
   const [servers] = useState([
-    { id: 1, name: "Москва", location: "Москва", speed: "100 Mbps" },
-    { id: 2, name: "Нью-Йорк", location: "Нью-Йорк", speed: "200 Mbps" },
-    { id: 3, name: "Лондон", location: "Лондон", speed: "150 Mbps" },
-    { id: 4, name: "Токио", location: "Токио", speed: "300 Mbps" },
+    { id: 1, name: "Moscow", location: "Moscow", speed: "100 Mbps" },
+    { id: 2, name: "New-York", location: "New-York", speed: "200 Mbps" },
+    { id: 3, name: "London", location: "London", speed: "150 Mbps" },
+    { id: 4, name: "Tokyo", location: "Tokyo", speed: "300 Mbps" },
   ]);
 
   // Анимация волн
@@ -129,9 +129,9 @@ function HomeScreen({ navigation }) {
     return (
       <TouchableOpacity onPress={() => navigation.navigate('ChangeServer')}>
         <View style={styles.serverBar}>
-          <Text style={styles.serverLabel}>Сервер</Text>
+          <Text style={styles.serverLabel}>Server</Text>
           <View style={styles.divider} />
-          <Text style={styles.serverName}>{currentServer?.name || "Выберите сервер"}</Text>
+          <Text style={styles.serverName}>{currentServer?.name || "Choose a server"}</Text>
           {renderPingIndicator()}
         </View>
       </TouchableOpacity>
@@ -204,7 +204,7 @@ function HomeScreen({ navigation }) {
                 <Text style={[styles.speedValue, { color: speedColor }]}>
                   {speed.toFixed(1)}
                 </Text>
-                <Text style={[styles.speedUnit, { fontSize: pixelToHeight(14) }]}>Мб/с</Text>
+                <Text style={[styles.speedUnit, { fontSize: pixelToHeight(14) }]}>Mb/s</Text>
               </View>
             )}
           />
@@ -295,7 +295,7 @@ function HomeScreen({ navigation }) {
               style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
               onPress={toggleConnection}
             >
-              <Text style={styles.connectButtonText}>RESERVE</Text>
+              <Text style={styles.connectButtonText}>Reserve</Text>
             </TouchableOpacity>
           </LinearGradient>
         ) : (
@@ -304,7 +304,7 @@ function HomeScreen({ navigation }) {
             onPress={toggleConnection}
             disabled={false} // Кнопка активна, но с серым фоном
           >
-            <Text style={styles.connectButtonText}>RESERVE</Text>
+            <Text style={styles.connectButtonText}>Reserve</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -334,7 +334,7 @@ function HomeScreen({ navigation }) {
               styles.pingBar,
               { 
                 backgroundColor: i <= activeBars ? barColor : '#FFFFFF',
-                height: i * 4 + 2,
+                height: pixelToHeight(i * 4 + 2),
                 opacity: i <= activeBars ? 1 : 0.3
               }
             ]}
@@ -348,7 +348,7 @@ function HomeScreen({ navigation }) {
   const renderConnectionTime = () => {
     return (
       <View style={styles.connectionTimeContainer}>
-        <Text style={styles.connectionTimeLabel}>Время подключения</Text>
+        <Text style={styles.connectionTimeLabel}>Connection time</Text>
         <Text style={styles.connectionTime}>00:25:41</Text>
       </View>
     );
@@ -413,7 +413,7 @@ function HomeScreen({ navigation }) {
                     color: selectedSpeedType === 'download' && showSpeedometer ? 'white' : '#AAAAAA', 
                     fontSize: 14 
                   }]}>
-                    {downloadSpeed.toFixed(1)} Мб/с
+                    {downloadSpeed.toFixed(1)} Mb/s
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -444,7 +444,7 @@ function HomeScreen({ navigation }) {
                     color: selectedSpeedType === 'upload' && showSpeedometer ? 'white' : '#AAAAAA', 
                     fontSize: 14 
                   }]}>
-                    {uploadSpeed.toFixed(1)} Мб/с
+                    {uploadSpeed.toFixed(1)} Mb/s
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -512,6 +512,7 @@ const styles = StyleSheet.create({
     color: 'white',
     marginLeft: pixelToHeight(8),
     fontSize: pixelToHeight(12),
+    marginTop: pixelToHeight(7)
   },
   ipBlock: {
     display: 'flex',
@@ -596,7 +597,7 @@ const styles = StyleSheet.create({
   },
   connectButtonText: {
     color: 'white',
-    fontSize: pixelToHeight(16),
+    fontSize: pixelToHeight(24),
     fontWeight: 'bold',
   },
   speedValueContainer: {
@@ -658,7 +659,7 @@ const styles = StyleSheet.create({
   connectionTimeLabel: {
     color: '#AAAAAA',
     fontSize: pixelToHeight(14),
-    marginBottom: pixelToHeight(-5),
+    marginBottom: pixelToHeight(0),
     marginTop: pixelToHeight(5),
   },
   connectionTime: {

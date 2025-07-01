@@ -34,7 +34,7 @@ function SettingsConnectionScreen({ navigation }) {
       resizeMode="stretch"
     >
       <View style={[commonStyles.container, { paddingTop: pixelToHeight(Platform.OS === 'ios' ? 55 : 25) }]}>
-        <Text style={commonStyles.titleText}>Настройки сети</Text>
+        <Text style={commonStyles.titleText}>Network Settings</Text>
         <BackButton onPress={() => navigation.goBack()} />
 
         {/* Время подключения */}

@@ -23,32 +23,32 @@ function SettingsParametersScreen({ navigation }) {
     >
       <View style={styles.container}>
         {/* Тумблеры */}
-        <Text style={[commonStyles.titleText, {marginTop: pixelToHeight(Platform.OS === 'ios' ? 30 : 0)}]}>Настройка</Text>
+        <Text style={[commonStyles.titleText, {marginTop: pixelToHeight(Platform.OS === 'ios' ? 30 : 0)}]}>Settings</Text>
 
         <View style={styles.togglesContainer}>
         <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Умная фильтрация приложений</Text>
+            <Text style={styles.toggleText}>Smart application filtering</Text>
             <ToggleSwitch
               value={smartFiltering}
               onValueChange={setSmartFiltering}
             />
           </View>
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Фильтрация VPN сервисов</Text>
+            <Text style={styles.toggleText}>VPN service filtering</Text>
             <ToggleSwitch
               value={vpnFiltering}
               onValueChange={setVpnFiltering}
             />
           </View>
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Контроль действия подписки</Text>
+            <Text style={styles.toggleText}>Subscription control</Text>
             <ToggleSwitch
               value={subscriptionControl}
               onValueChange={setSubscriptionControl}
             />
           </View>
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Автопереключение при сбое VPN</Text>
+            <Text style={styles.toggleText}>VPN auto switch</Text>
             <ToggleSwitch
               value={autoSwitch}
               onValueChange={setAutoSwitch}
