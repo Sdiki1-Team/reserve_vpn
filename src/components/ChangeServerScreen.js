@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, Platform } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
 import { pixelToHeight } from '../styles/commonStyles';
+
 
 
 function ChangeServerScreen({ navigation }) {
@@ -11,7 +12,7 @@ function ChangeServerScreen({ navigation }) {
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[commonStyles.centeredContainer, { paddingTop: pixelToHeight(50) }]}>
+      <View style={[commonStyles.centeredContainer, { paddingTop: pixelToHeight(Platform.OS === 'ios' ? 75 : 50) }]}>
         <Text style={commonStyles.titleText}>Выбор сервера</Text>
         
         <TouchableOpacity 

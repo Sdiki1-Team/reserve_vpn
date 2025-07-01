@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Dimensions, Image, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Dimensions, Image, Animated, Platform } from 'react-native';
 import { CircularProgress } from 'react-native-circular-progress';
 import { commonStyles } from '../styles/commonStyles';
-import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
 import LinearGradient from 'react-native-linear-gradient';
 import { pixelToHeight } from '../styles/commonStyles';
+import { Platform } from 'react-native';
+
 
 
 const { width } = Dimensions.get('window');
@@ -361,7 +362,7 @@ function HomeScreen({ navigation }) {
       resizeMode="stretch"
     >
       <View style={[styles.container]}>
-        <Text style={[commonStyles.titleText, { marginTop: pixelToHeight(20), marginBottom: pixelToHeight(10) }]}>Reserve VPN</Text>
+        <Text style={[commonStyles.titleText, { marginTop: pixelToHeight(Platform.OS == 'ios' ? 30 : 0), marginBottom: pixelToHeight(10) }]}>Reserve VPN</Text>
         
         {/* Панель сервера */}
         {renderServerPanel()}
@@ -674,8 +675,8 @@ const styles = StyleSheet.create({
   },
   marksContainer: {
     position: 'absolute',
-    width: pixelToHeight(220),
-    height: pixelToHeight(220),
+    width: '100%',
+    height: '100%',
     top: 0,
     left: 0,
   },

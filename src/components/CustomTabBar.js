@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SvgIcon from './SvgIcon';
-import { pixelToHeight } from '../styles/commonStyles';
 
 
 const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
@@ -147,7 +146,7 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
                   width: isFocused ? 'auto' : '100%',
                   // Отрицательные отступы для увеличения размера
                   ...(isFocused && {
-                    marginHorizontal: pixelToHeight(-10), // 10px с каждой стороны = +20px общая ширина
+                    marginHorizontal: -10, // 10px с каждой стороны = +20px общая ширина
                     zIndex: 10,
                   }),
                 }
@@ -155,9 +154,9 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
             >
               <SvgIcon 
                 name={getIcon(route.name, isFocused)}
-                size={pixelToHeight(24)}
+                size={24}
                 color={isFocused ? '#FFFFFF' : '#FFFFFF'}
-                style={[styles.icon, { marginRight: isFocused ? pixelToHeight(8) : 0 }]} // Отступ только для активной вкладки
+                style={[styles.icon, { marginRight: isFocused ? 8 : 0 }]} // Отступ только для активной вкладки
               />
               {isFocused && (
                 <Text style={[styles.activeTabText, { color: isFocused ? '#2C2C2C' : '#FFFFFF' }]}>
@@ -176,27 +175,27 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     backgroundColor: '#191919', // Тёмно-серый цвет
-    borderRadius: pixelToHeight(100),
-    marginHorizontal: pixelToHeight(15), // Отступы от краев экрана на 15px
-    marginBottom: pixelToHeight(15), // Отступ снизу
-    paddingHorizontal: pixelToHeight(15), // Отступы по 15px с каждой стороны 
+    borderRadius: 100,
+    marginHorizontal: 15, // Отступы от краев экрана на 15px
+    marginBottom: 10, // Отступ снизу
+    paddingHorizontal: 15, // Отступы по 15px с каждой стороны 
     elevation: 8,
   },
   tabButton: {
     flex: 1, // Каждая кнопка занимает равную часть
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: pixelToHeight(8),
+    paddingVertical: 5,
   },
   tabContent: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center', // По умолчанию центрируем
-    paddingHorizontal: pixelToHeight(8),
-    paddingVertical: pixelToHeight(11),
-    borderRadius: pixelToHeight(20),
-    minWidth: pixelToHeight(40),
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRadius: 20,
+    minWidth: 40,
     maxWidth: '100%', // Ограничиваем максимальную ширину
   },
   activeTabContent: {
@@ -209,7 +208,7 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: 'white',
-    fontSize: pixelToHeight(16),
+    fontSize: 16,
     fontWeight: '900',
     textAlign: 'center'
   },

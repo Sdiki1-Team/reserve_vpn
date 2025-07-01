@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Modal, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Modal, Dimensions, Platform } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
 import BackButton from './BackButton';
 import TimePicker from './TimePicker';
@@ -33,7 +33,7 @@ function SettingsConnectionScreen({ navigation }) {
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[commonStyles.ontainer, { paddingTop: pixelToHeight(25) }]}>
+      <View style={[commonStyles.container, { paddingTop: pixelToHeight(Platform.OS === 'ios' ? 55 : 25) }]}>
         <Text style={commonStyles.titleText}>Настройки сети</Text>
         <BackButton onPress={() => navigation.goBack()} />
 

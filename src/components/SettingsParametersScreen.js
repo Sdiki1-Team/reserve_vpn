@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, Dimensions, Platform } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
 import ToggleSwitch from './ToggleSwitch';
 import BackButton from './BackButton';
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     marginBottom: pixelToHeight(30),
-    marginTop: pixelToHeight(15)
+    marginTop: pixelToHeight(Platform.OS == 'ios' ? 45 : 15)
   },
   togglesContainer: {
     width: '100%',

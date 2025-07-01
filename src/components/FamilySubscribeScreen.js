@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, Image, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, Image, StyleSheet, Platform } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
 import BackButton from './BackButton';
 import { pixelToHeight } from '../styles/commonStyles';
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: pixelToHeight(25),
+    paddingTop: pixelToHeight(Platform.OS === 'ios' ? 55 : 25),
   },
   header: {
     fontSize: pixelToHeight(24),

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Animated, Dimensions, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { commonStyles } from '../styles/commonStyles';
 import BackButton from './BackButton';
@@ -65,7 +65,7 @@ function SettingsVPNModeScreen({ navigation }) {
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[commonStyles.container, { paddingTop: pixelToHeight(80), marginTop: 0 }]}>
+      <View style={[commonStyles.container, { paddingTop: pixelToHeight(Platform.OS == 'ios' ? 110 : 80), marginTop: 0 }]}>
         <Text style={[commonStyles.titleText, commonStyles.absouluteCenteredTitile]}>Выбор режима VPN</Text>
         <BackButton onPress={() => navigation.goBack()} />
 

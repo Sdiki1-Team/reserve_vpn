@@ -1,6 +1,6 @@
 // src/components/SettingsParametersScreen.js
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Modal, Platform } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
 import ToggleSwitch from './ToggleSwitch';
 import { Linking } from 'react-native';
@@ -23,7 +23,7 @@ function SettingsParametersScreen({ navigation }) {
     >
       <View style={styles.container}>
         {/* Тумблеры */}
-        <Text style={commonStyles.titleText}>Настройка</Text>
+        <Text style={[commonStyles.titleText, {marginTop: pixelToHeight(Platform.OS === 'ios' ? 30 : 0)}]}>Настройка</Text>
 
         <View style={styles.togglesContainer}>
         <View style={styles.toggleRow}>
