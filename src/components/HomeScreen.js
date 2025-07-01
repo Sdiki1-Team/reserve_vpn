@@ -4,7 +4,6 @@ import { CircularProgress } from 'react-native-circular-progress';
 import { commonStyles } from '../styles/commonStyles';
 import LinearGradient from 'react-native-linear-gradient';
 import { pixelToHeight } from '../styles/commonStyles';
-import { Platform } from 'react-native';
 
 
 
