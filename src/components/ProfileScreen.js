@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   tariffTab: {
-    width: pixelToHeight((Dimensions.get('window').width - 40) / 3 - 10),
+    width: (Dimensions.get('window').width - 40) / 3 - 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
   periodTab: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: pixelToHeight((Dimensions.get('window').width - 40) / 3 - 10),
+    width: (Dimensions.get('window').width - 40) / 3 - 10,
 
   },
   activePeriodTab: {

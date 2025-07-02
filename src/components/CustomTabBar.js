@@ -155,7 +155,7 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
             >
               <SvgIcon 
                 name={getIcon(route.name, isFocused)}
-                size={pixelToHeight(24) * 2}
+                size={pixelToHeight(24)}
                 color={isFocused ? '#FFFFFF' : '#FFFFFF'}
                 style={[styles.icon, { marginRight: isFocused ? pixelToHeight(8) : 0 }]} // Отступ только для активной вкладки
               />
@@ -181,7 +181,8 @@ const styles = StyleSheet.create({
     borderRadius: pixelToHeight(100),
     marginHorizontal: pixelToHeight(15), // Отступы от краев экрана на 15px
     marginBottom: pixelToHeight(15), // Отступ снизу
-    paddingHorizontal: pixelToHeight(15), // Отступы по 15px с каждой стороны 
+    paddingHorizontal: pixelToHeight(15), // Отступы по 15px с каждой стороны
+    maxHeight: pixelToHeight(60),
     elevation: 8,
   },
   tabButton: {

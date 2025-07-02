@@ -129,10 +129,18 @@ function HomeScreen({ navigation }) {
     return (
       <TouchableOpacity onPress={() => navigation.navigate('ChangeServer')}>
         <View style={styles.serverBar}>
+          <View style={styles.serverLeftContent}>
           <Text style={styles.serverLabel}>Server</Text>
           <View style={styles.divider} />
+            <Image source={require('../images/flag.png')} style={{height: 12, width: 20}}></Image>
+          </View>
+          {/* Центральное название сервера с абсолютным позиционированием */}
+          <View style={styles.centeredServerNameWrapper}>
           <Text style={styles.serverName}>{currentServer?.name || "Choose a server"}</Text>
+          </View>
+          <View style={styles.serverRightContent}>
           {renderPingIndicator()}
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -482,6 +490,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: pixelToHeight(20), 
     marginBottom: pixelToHeight(5),
   },
+  serverLeftContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start', 
+  },
+  serverRightContent: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
   serverLabel: {
     color: '#AAAAAA',
     fontSize: pixelToHeight(14),
@@ -495,8 +512,8 @@ const styles = StyleSheet.create({
   serverName: {
     color: 'white',
     fontSize: pixelToHeight(16),
+    lineHeight: pixelToHeight(16),
     fontWeight: 'bold',
-    marginRight: pixelToHeight(15),
   },
   pingContainer: {
     flexDirection: 'row',
@@ -692,6 +709,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     transform: [{ translateX: pixelToHeight(-110) }, { translateY: pixelToHeight(-180) }], // Центрируем спидометр
+  },
+  centeredServerNameWrapper: { 
+    position: 'absolute', 
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
