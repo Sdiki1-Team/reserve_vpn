@@ -29,6 +29,7 @@ function HomeScreen({ navigation }) {
   const animatedOpacities = useRef(staticOpacities.map(opacity => new Animated.Value(opacity))).current;
   const animationRefs = useRef([]);
   const [speedometerScale] = useState(new Animated.Value(0)); // Начальное значение для анимации
+  const connectedAnimation = useRef(new Animated.Value(connected ? 1 : 0)).current; // Для анимации кнопки
 
   // Устанавливаем значения по умолчанию
   const myIp = "192.168.1.35";
@@ -88,6 +89,15 @@ function HomeScreen({ navigation }) {
     }
   }, [connected, animatedOpacities, animatedScales, staticScales, staticOpacities]);
 
+  // Эффект для анимации кнопки подключения/отключения
+  useEffect(() => {
+    Animated.timing(connectedAnimation, {
+      toValue: connected ? 1 : 0,
+      duration: 200, // Увеличена длительность анимации
+      useNativeDriver: true,
+    }).start();
+  }, [connected, connectedAnimation]);
+
   // Запускаем анимацию при показе спидометра
   useEffect(() => {
     if (showSpeedometer) {
@@ -103,6 +113,7 @@ function HomeScreen({ navigation }) {
   }, [showSpeedometer, speedometerScale]);
 
   const toggleConnection = () => {
+    console.log('Кнопка нажата, состояние подключения:', !connected); // Временный лог для отладки
     const newState = !connected;
     setConnected(newState);
     if (!newState) {
@@ -158,7 +169,9 @@ function HomeScreen({ navigation }) {
             style={[
               styles.wave, 
               { 
-                borderColor: connected ? '#723CEB' : '#999',
+                borderColor: connected 
+                             ? (index < 3 ? '#723CEB' : '#999') // Если подключено: первые 3 волны фиолетовые, остальные серые
+                             : '#999', // Если отключено: все волны серые
                 transform: [{ scale: animatedScales[index] }],
                 opacity: animatedOpacities[index],
               }
@@ -223,7 +236,7 @@ function HomeScreen({ navigation }) {
             // Рассчитываем положение метки на окружности
             const angle = 52 - ((8 - value[1]) / 8) * 285;
             const radian = (angle * Math.PI) / 180;
-            const radius = 130;
+            const radius = pixelToHeight(130);
             const x = 100 + radius * Math.cos(radian);
             const y = 100 + radius * Math.sin(radian);
             
@@ -279,42 +292,68 @@ function HomeScreen({ navigation }) {
   const renderConnectionButton = () => {
     if (showSpeedometer) return null;
 
-    const buttonStyle = {
-      width: pixelToHeight(150),
-      height: pixelToHeight(150),
-      borderRadius: pixelToHeight(75),
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: connected ? 'transparent' : '#191919',
-      borderWidth: 1,
-      borderColor: 'grey'
-    };
-
     return (
-      <View style={buttonStyle}>
-        {connected ? (
+      <View style={{
+        width: pixelToHeight(150),
+        height: pixelToHeight(150),
+        position: 'relative', // Необходимо для абсолютного позиционирования дочерних элементов
+      }}>
+        {/* Кнопка в отключенном состоянии */}
+        <Animated.View style={[
+          styles.disconnectedButton,
+          {
+            position: 'absolute',
+            opacity: connectedAnimation.interpolate({
+              inputRange: [0, 1],
+              outputRange: [1, 0], // Видна при отключении, исчезает при подключении
+            }),
+            zIndex: connectedAnimation.interpolate({
+              inputRange: [0, 1],
+              outputRange: [2, 1], // Более высокий zIndex при отключении
+            }),
+          },
+        ]}
+        pointerEvents={connected ? 'none' : 'auto'}
+        >
+          <TouchableOpacity
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', borderRadius: pixelToHeight(75) }}
+            onPress={toggleConnection}
+          >
+            <Text style={styles.connectButtonText}>Reserve</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Кнопка в подключенном состоянии (LinearGradient) */}
+        <Animated.View style={[
+          styles.connectButton, // Используем существующий стиль connectButton для размеров и центрирования
+          {
+            position: 'absolute',
+            opacity: connectedAnimation.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 1], // Появляется при подключении, полностью видна при подключении
+            }),
+            zIndex: connectedAnimation.interpolate({
+              inputRange: [0, 1],
+              outputRange: [1, 2], // Более высокий zIndex при подключении
+            }),
+          },
+        ]}
+        pointerEvents={connected ? 'auto' : 'none'}
+        >
           <LinearGradient
             colors={['#723CEB', '#3D04BB']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.connectButton}
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', borderRadius: pixelToHeight(75) }} // Применяем радиус границы к самому градиенту
           >
             <TouchableOpacity
-              style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', borderRadius: pixelToHeight(75) }}
               onPress={toggleConnection}
             >
               <Text style={styles.connectButtonText}>Reserve</Text>
             </TouchableOpacity>
           </LinearGradient>
-        ) : (
-          <TouchableOpacity
-            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-            onPress={toggleConnection}
-            disabled={false} // Кнопка активна, но с серым фоном
-          >
-            <Text style={styles.connectButtonText}>Reserve</Text>
-          </TouchableOpacity>
-        )}
+        </Animated.View>
       </View>
     );
   };
@@ -608,7 +647,6 @@ const styles = StyleSheet.create({
     width: pixelToHeight(150),
     height: pixelToHeight(150),
     borderRadius: pixelToHeight(75),
-    borderWidth: pixelToHeight(2),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -718,6 +756,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  disconnectedButton: {
+    width: pixelToHeight(150),
+    height: pixelToHeight(150),
+    borderRadius: pixelToHeight(75),
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#191919',
+    borderWidth: 1,
+    borderColor: 'grey',
   },
 });
 
