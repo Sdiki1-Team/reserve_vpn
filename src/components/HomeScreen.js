@@ -30,6 +30,7 @@ function HomeScreen({ navigation }) {
   const animationRefs = useRef([]);
   const [speedometerScale] = useState(new Animated.Value(0)); // Начальное значение для анимации
   const connectedAnimation = useRef(new Animated.Value(connected ? 1 : 0)).current; // Для анимации кнопки
+  const speedInfoAnimation = useRef(new Animated.Value(0)).current; // Для анимации блоков скорости и времени
 
   // Устанавливаем значения по умолчанию
   const myIp = "192.168.1.35";
@@ -97,6 +98,15 @@ function HomeScreen({ navigation }) {
       useNativeDriver: true,
     }).start();
   }, [connected, connectedAnimation]);
+
+  // Эффект для анимации блоков скорости и времени
+  useEffect(() => {
+    Animated.timing(speedInfoAnimation, {
+      toValue: connected ? 1 : 0,
+      duration: 200, // Быстрое появление/исчезание
+      useNativeDriver: true,
+    }).start();
+  }, [connected, speedInfoAnimation]);
 
   // Запускаем анимацию при показе спидометра
   useEffect(() => {
@@ -393,11 +403,25 @@ function HomeScreen({ navigation }) {
   };
 
   const renderConnectionTime = () => {
+    // Если спидометр показан, не рендерим время подключения
+    if (showSpeedometer) return null;
+
     return (
-      <View style={styles.connectionTimeContainer}>
+      <Animated.View style={[
+        styles.connectionTimeContainer,
+        {
+          opacity: speedInfoAnimation,
+          transform: [{
+            scale: speedInfoAnimation.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.8, 1], // Масштабирование от 80% до 100%
+            }),
+          }],
+        }
+      ]}>
         <Text style={styles.connectionTimeLabel}>Connection time</Text>
         <Text style={styles.connectionTime}>00:25:41</Text>
-      </View>
+      </Animated.View>
     );
   };
 
@@ -432,75 +456,82 @@ function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Блоки скорости (только при подключении) */}
-        {connected && (
-          <>
-            <View style={styles.speedContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.speedBlock,
-                  selectedSpeedType === 'download' && showSpeedometer && styles.speedBlockActive
-                ]}
-                onPress={() => handleSpeedTypeSelect('download')}
-              >
-                <Image
-                  source={require('../images/icons/download.png')}
-                  style={[styles.speedIcon, { 
-                    tintColor: '#723CEB' 
-                  }]}
-                />
-                <View>
-                  <Text style={[styles.speedLabel, { 
-                    color: selectedSpeedType === 'download' && showSpeedometer ? 'white' : '#AAAAAA', 
-                    fontSize: 14 
-                  }]}>
-                    Download
-                  </Text>
-                  <Text style={[styles.speedValueText, { 
-                    color: selectedSpeedType === 'download' && showSpeedometer ? 'white' : '#AAAAAA', 
-                    fontSize: 14 
-                  }]}>
-                    {downloadSpeed.toFixed(1)} Mb/s
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              <View style={styles.verticalDivider} />
-
-              <TouchableOpacity
-                style={[
-                  styles.speedBlock,
-                  selectedSpeedType === 'upload' && showSpeedometer && styles.speedBlockActive
-                ]}
-                onPress={() => handleSpeedTypeSelect('upload')}
-              >
-                <Image
-                  source={require('../images/icons/upload.png')}
-                  style={[styles.speedIcon, { 
-                    tintColor: 'white' 
-                  }]}
-                />
-                <View>
-                  <Text style={[styles.speedLabel, { 
-                    color: selectedSpeedType === 'upload' && showSpeedometer ? 'white' : '#AAAAAA', 
-                    fontSize: 14 
-                  }]}>
-                    Upload
-                  </Text>
-                  <Text style={[styles.speedValueText, { 
-                    color: selectedSpeedType === 'upload' && showSpeedometer ? 'white' : '#AAAAAA', 
-                    fontSize: 14 
-                  }]}>
-                    {uploadSpeed.toFixed(1)} Mb/s
-                  </Text>
-                </View>
-              </TouchableOpacity>
+        {/* Блоки скорости (теперь всегда рендерятся, но анимируются) */}
+        <Animated.View style={[
+          styles.speedContainer,
+          {
+            opacity: speedInfoAnimation,
+            transform: [{
+              scale: speedInfoAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.8, 1],
+              }),
+            }],
+          }
+        ]}>
+          <TouchableOpacity
+            style={[
+              styles.speedBlock,
+              selectedSpeedType === 'download' && showSpeedometer && styles.speedBlockActive
+            ]}
+            onPress={() => handleSpeedTypeSelect('download')}
+          >
+            <Image
+              source={require('../images/icons/download.png')}
+              style={[styles.speedIcon, { 
+                tintColor: '#723CEB' 
+              }]}
+            />
+            <View>
+              <Text style={[styles.speedLabel, { 
+                color: selectedSpeedType === 'download' && showSpeedometer ? 'white' : '#AAAAAA', 
+                fontSize: 14 
+              }]}>
+                Download
+              </Text>
+              <Text style={[styles.speedValueText, { 
+                color: selectedSpeedType === 'download' && showSpeedometer ? 'white' : '#AAAAAA', 
+                fontSize: 14 
+              }]}>
+                {downloadSpeed.toFixed(1)} Mb/s
+              </Text>
             </View>
-            
-            {/* Время подключения (только при подключении и без спидометра) */}
-            {!showSpeedometer && renderConnectionTime()}
-          </>
-        )}
+          </TouchableOpacity>
+
+          <View style={styles.verticalDivider} />
+
+          <TouchableOpacity
+            style={[
+              styles.speedBlock,
+              selectedSpeedType === 'upload' && showSpeedometer && styles.speedBlockActive
+            ]}
+            onPress={() => handleSpeedTypeSelect('upload')}
+          >
+            <Image
+              source={require('../images/icons/upload.png')}
+              style={[styles.speedIcon, { 
+                tintColor: 'white' 
+              }]}
+            />
+            <View>
+              <Text style={[styles.speedLabel, { 
+                color: selectedSpeedType === 'upload' && showSpeedometer ? 'white' : '#AAAAAA', 
+                fontSize: 14 
+              }]}>
+                Upload
+              </Text>
+              <Text style={[styles.speedValueText, { 
+                color: selectedSpeedType === 'upload' && showSpeedometer ? 'white' : '#AAAAAA', 
+                fontSize: 14 
+              }]}>
+                {uploadSpeed.toFixed(1)} Mb/s
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+        
+        {/* Время подключения (теперь анимируется) */}
+        {renderConnectionTime()}
 
         {/* Контейнер для кнопки/спидометра */}
         <View style={styles.buttonContainer}>
