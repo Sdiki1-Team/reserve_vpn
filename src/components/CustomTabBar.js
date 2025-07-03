@@ -188,9 +188,13 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1, // Каждая кнопка занимает равную часть
+    display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: pixelToHeight(8),
+    maxHeight: pixelToHeight(70),
+    minHeight: pixelToHeight(70),
   },
   tabContent: {
     display: 'flex',

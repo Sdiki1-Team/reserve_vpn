@@ -4,6 +4,8 @@ import { CircularProgress } from 'react-native-circular-progress';
 import { commonStyles } from '../styles/commonStyles';
 import LinearGradient from 'react-native-linear-gradient';
 import { pixelToHeight } from '../styles/commonStyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 
@@ -15,7 +17,7 @@ function HomeScreen({ navigation }) {
   const [selectedSpeedType, setSelectedSpeedType] = useState(null);
   const [showSpeedometer, setShowSpeedometer] = useState(false);
   const [currentServer, setCurrentServer] = useState(null);
-  const [servers] = useState([
+  const [servers, setServers] = useState([
     { id: 1, name: "Moscow", location: "Moscow", speed: "100 Mbps" },
     { id: 2, name: "New-York", location: "New-York", speed: "200 Mbps" },
     { id: 3, name: "London", location: "London", speed: "150 Mbps" },
@@ -38,12 +40,40 @@ function HomeScreen({ navigation }) {
   const downloadSpeed = 45.6;
   const uploadSpeed = 12.3;
 
-  // Устанавливаем первый сервер по умолчанию
+  // Устанавливаем первый сервер по умолчанию или загружаем активный
   useEffect(() => {
-    if (servers.length > 0) {
+    if (servers.length > 0 && currentServer === null) {
       setCurrentServer(servers[0]);
     }
-  }, [servers]);
+  }, [servers, currentServer]);
+
+  // Загрузка активного сервера из AsyncStorage при фокусировке экрана
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadActiveServer = async () => {
+        try {
+          const storedServerId = await AsyncStorage.getItem('activeServerId');
+          if (storedServerId !== null) {
+            const foundServer = servers.find(s => s.id === parseInt(storedServerId, 10));
+            if (foundServer) {
+              setCurrentServer(foundServer);
+            } else { // Если сохраненный сервер не найден в текущем списке
+              setCurrentServer(servers[0]); // Установить первый по умолчанию
+            }
+          } else { // Если в AsyncStorage ничего нет
+            setCurrentServer(servers[0]); // Установить первый по умолчанию
+          }
+        } catch (e) {
+          console.error("Ошибка при загрузке активного сервера из AsyncStorage в HomeScreen:", e);
+          setCurrentServer(servers[0]); // В случае ошибки также установить первый по умолчанию
+        }
+      };
+
+      if (servers.length > 0) {
+        loadActiveServer();
+      }
+    }, [servers])
+  );
 
   useEffect(() => {
     if (connected) {

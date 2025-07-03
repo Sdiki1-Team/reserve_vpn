@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import { pixelToHeight } from '../styles/commonStyles';
 
 
@@ -13,9 +13,6 @@ const BackButton = ({ onPress }) => {
 
 const styles = StyleSheet.create({
   backButton: {
-    position: 'absolute',
-    top: pixelToHeight(20),
-    left: pixelToHeight(20),
     backgroundColor: '#191919',
     borderRadius: pixelToHeight(5),
     padding: pixelToHeight(10),
@@ -24,6 +21,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minWidth: pixelToHeight(40),
     minHeight: pixelToHeight(40),
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? pixelToHeight(50) : pixelToHeight(20),
+    left: pixelToHeight(20),
+    zIndex: 20,
   },
   backButtonText: {
     color: '#FFFFFF',
