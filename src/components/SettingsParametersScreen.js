@@ -1,244 +1,254 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, Dimensions, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Platform, Modal, Linking } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
-import ToggleSwitch from './ToggleSwitch';
-import BackButton from './BackButton';
 import { pixelToHeight } from '../styles/commonStyles';
+import BackButton from './BackButton';
+import ToggleSwitch from './ToggleSwitch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
+// Импорт фоновых изображений
+const BackgroundStripes = require('../images/backgroud_stripes.png');
+const BackgroundStripesActive = require('../images/background_stripes_active.png');
 
-function SettingsParameters({ navigation }) {
+function SettingsParametersScreen({ navigation }) {
+  const [deviceModalVisible, setDeviceModalVisible] = useState(false);
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const [smartFiltering, setSmartFiltering] = useState(false);
   const [vpnFiltering, setVpnFiltering] = useState(true);
   const [subscriptionControl, setSubscriptionControl] = useState(false);
   const [autoSwitch, setAutoSwitch] = useState(true);
-  const [digitalMasking, setDigitalMasking] = useState(false);
-  const [activityWidget, setActivityWidget] = useState(true);
-  const [actionButton, setActionButton] = useState(false);
-  const [autoConnect, setAutoConnect] = useState(false);
-  const [killSwitch, setKillSwitch] = useState(true);
-  const [vpnMasking, setVpnMasking] = useState(false);
-  const [gpsSpoofing, setGpsSpoofing] = useState(false);
-  const [p2pShare, setP2pShare] = useState(true);
-  const [startupEnable, setStartupEnable] = useState(true);
-  const [tempSessions, setTempSessions] = useState(false);
+  const [connected, setConnected] = useState(false); // Новое состояние connected
+
+  // Загрузка состояния connected при фокусировке экрана
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadConnectedStatus = async () => {
+        try {
+          const storedConnected = await AsyncStorage.getItem('connected');
+          if (storedConnected !== null) {
+            setConnected(JSON.parse(storedConnected));
+          }
+        } catch (e) {
+          console.error("Ошибка при загрузке connected из AsyncStorage в SettingsParametersScreen:", e);
+        }
+      };
+      loadConnectedStatus();
+    }, [])
+  );
 
   return (
     <ImageBackground
-      source={require('../images/backgroud_stripes.png')}
+      source={connected ? BackgroundStripesActive : BackgroundStripes} // Динамический выбор фона
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-        
+      <View style={styles.container}>
+        <Text style={[commonStyles.titleText, {marginTop: pixelToHeight(Platform.OS === 'ios' ? 30 : 0)}]}>Settings</Text>
 
-      <ScrollView 
-        contentContainerStyle={{ 
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: pixelToHeight(10)
-        }}
-      >
-        <Text style={styles.modeTitle}>Режим RESERVE</Text>
-        <BackButton onPress={() => navigation.goBack()} />
-        
-        {/* Тумблеры */}
         <View style={styles.togglesContainer}>
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Умная фильтрация приложений</Text>
+        <View style={styles.toggleRow}>
+            <Text style={styles.toggleText}>Smart application filtering</Text>
             <ToggleSwitch
-              value={smartFiltering}
-              onValueChange={setSmartFiltering}
+              isOn={smartFiltering}
+              onToggle={setSmartFiltering}
             />
           </View>
-          
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Фильтрация VPN сервисов</Text>
+            <Text style={styles.toggleText}>VPN service filtering</Text>
             <ToggleSwitch
-              value={vpnFiltering}
-              onValueChange={setVpnFiltering}
+              isOn={vpnFiltering}
+              onToggle={setVpnFiltering}
             />
           </View>
-          
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Контроль действия подписки</Text>
+            <Text style={styles.toggleText}>Subscription control</Text>
             <ToggleSwitch
-              value={subscriptionControl}
-              onValueChange={setSubscriptionControl}
+              isOn={subscriptionControl}
+              onToggle={setSubscriptionControl}
             />
           </View>
-          
           <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Автопереключение при сбое VPN</Text>
+            <Text style={styles.toggleText}>VPN auto switch</Text>
             <ToggleSwitch
-              value={autoSwitch}
-              onValueChange={setAutoSwitch}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Цифровая маскировка</Text>
-            <ToggleSwitch
-              value={digitalMasking}
-              onValueChange={setDigitalMasking}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Виджет активности</Text>
-            <ToggleSwitch
-              value={activityWidget}
-              onValueChange={setActivityWidget}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Поддержка ActionButton</Text>
-            <ToggleSwitch
-              value={actionButton}
-              onValueChange={setActionButton}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Автоподключение в приложениях</Text>
-            <ToggleSwitch
-              value={autoConnect}
-              onValueChange={setAutoConnect}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Функции Kill Switch</Text>
-            <ToggleSwitch
-              value={killSwitch}
-              onValueChange={setKillSwitch}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Режим маскировки VPN</Text>
-            <ToggleSwitch
-              value={vpnMasking}
-              onValueChange={setVpnMasking}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Подмена GPS-координат</Text>
-            <ToggleSwitch
-              value={gpsSpoofing}
-              onValueChange={setGpsSpoofing}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>P2P Share</Text>
-            <ToggleSwitch
-              value={p2pShare}
-              onValueChange={setP2pShare}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Включать при запуске</Text>
-            <ToggleSwitch
-              value={startupEnable}
-              onValueChange={setStartupEnable}
-            />
-          </View>
-          
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Временные VPN-Сессии</Text>
-            <ToggleSwitch
-              value={tempSessions}
-              onValueChange={setTempSessions}
+              isOn={autoSwitch}
+              onToggle={setAutoSwitch}
             />
           </View>
         </View>
-        
-        {/* Разделительная полоса */}
-        <View style={styles.divider}/>
-        
-        {/* Добавление белой полосы */}
-        <View style={{ height: pixelToHeight(2), backgroundColor: '#FFFFFF', marginVertical: pixelToHeight(20) }} />
-        
-        {/* Навигационные элементы */}
-        <TouchableOpacity 
+
+        <View style={styles.divider} />
+
+        <TouchableOpacity style={[styles.purpleButton, styles.familyButton]} onPress={() => navigation.navigate('FamilySubscribe')}>
+          <Text style={styles.buttonText}>Семейная подписка</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={styles.navRow}
-          onPress={() => navigation.navigate('VPNSettings')}
+          onPress={() => setDeviceModalVisible(true)}
         >
-          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Выбор режима VPN</Text>
+          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Мои устройства</Text>
           <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navRow}
-          onPress={() => navigation.navigate('ConnectionSettings')}
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={deviceModalVisible}
+          onRequestClose={() => setDeviceModalVisible(false)}
         >
-          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Настройки подключения</Text>
+          <View style={styles.modalView}>
+            <Text>Здесь будет информация о ваших устройствах.</Text>
+            <TouchableOpacity onPress={() => setDeviceModalVisible(false)}>
+              <Text>Закрыть</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={languageModalVisible}
+          onRequestClose={() => setLanguageModalVisible(false)}
+        >
+          <View style={styles.modalView}>
+            <Text>Здесь будет информация о ваших устройствах.</Text>
+            <TouchableOpacity onPress={() => setLanguageModalVisible(false)}>
+              <Text>Закрыть</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+        <View style={styles.divider} />
+
+        <TouchableOpacity
+          style={styles.navRow}
+          onPress={() => Linking.openURL('https://www.google.com')}
+        >
+          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Поддержка</Text>
           <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
             <Text style={styles.arrow}>›</Text>
           </View>
         </TouchableOpacity>
- 
-      </ScrollView>
+
+        <TouchableOpacity
+          style={styles.navRow}
+          onPress={() => Linking.openURL('https://www.google.com')}
+        >
+          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Оцени приложение</Text>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
+            <Text style={styles.arrow}>›</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navRow}
+          onPress={() => setLanguageModalVisible(true)}
+        >
+          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Язык</Text>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
+            <Text style={styles.arrow}>›</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navRow}
+          onPress={() => Linking.openURL('https://www.google.com')}
+        >
+          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>О нас</Text>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
+            <Text style={styles.arrow}>›</Text>
+          </View>
+        </TouchableOpacity>
+
+        <View style={styles.divider} />
+
+        <TouchableOpacity style={styles.purpleButton} onPress={() => navigation.navigate('SettingsParameters')}>
+          <Text style={styles.buttonText}>Параметры RESERVE</Text>
+        </TouchableOpacity>
+      </View>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  modeTitle: {
-    fontSize: pixelToHeight(24),
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: pixelToHeight(30),
-    marginTop: pixelToHeight(Platform.OS == 'ios' ? 45 : 15)
+  container: {
+    flex: 1,
+    padding: pixelToHeight(20),
+    alignItems: 'center',
   },
   togglesContainer: {
-    width: '100%',
-    paddingHorizontal: pixelToHeight(10),
+    width: '90%',
+    backgroundColor: '#191919',
+    borderRadius: pixelToHeight(10),
+    padding: pixelToHeight(15),
+    marginBottom: pixelToHeight(20),
   },
   toggleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: pixelToHeight(4),
-    marginBottom: 0,
+    marginBottom: pixelToHeight(10),
   },
   toggleText: {
-    color: '#FFFFFF',
+    color: '#AAAAAA',
     fontSize: pixelToHeight(16),
-    fontWeight: '500',
-    flex: 1,
-    marginRight: pixelToHeight(16),
   },
   divider: {
-    minHeight: pixelToHeight(2),
-    height: pixelToHeight(2),
-    minWidth: pixelToHeight(Dimensions.get('window').width - 40),
-    backgroundColor: 'grey',
-    marginTop: pixelToHeight(20),
-    marginBottom: pixelToHeight(-20)
+    width: '90%',
+    height: 1,
+    backgroundColor: '#444',
+    marginVertical: pixelToHeight(15),
+  },
+  purpleButton: {
+    backgroundColor: '#723CEB',
+    borderRadius: pixelToHeight(10),
+    padding: pixelToHeight(15),
+    width: '90%',
+    alignItems: 'center',
+    marginBottom: pixelToHeight(15),
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: pixelToHeight(18),
+    fontWeight: 'bold',
+  },
+  familyButton: {
+    marginBottom: pixelToHeight(20),
   },
   navRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: pixelToHeight(10),
-    marginBottom: pixelToHeight(4),
+    width: '90%',
+    backgroundColor: '#191919',
+    borderRadius: pixelToHeight(10),
+    padding: pixelToHeight(15),
+    marginBottom: pixelToHeight(10),
   },
   navText: {
-    color: '#FFFFFF',
+    color: 'white',
     fontSize: pixelToHeight(16),
-    fontWeight: '500',
   },
   arrow: {
-    color: '#723CEB',
+    color: '#AAAAAA',
     fontSize: pixelToHeight(20),
-    fontWeight: 'bold',
+  },
+  modalView: {
+    margin: pixelToHeight(20),
+    backgroundColor: '#191919',
+    borderRadius: pixelToHeight(20),
+    padding: pixelToHeight(35),
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 
-export default SettingsParameters;
+export default SettingsParametersScreen;

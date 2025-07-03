@@ -4,11 +4,16 @@ import { commonStyles } from '../styles/commonStyles';
 import { pixelToHeight } from '../styles/commonStyles';
 import BackButton from './BackButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 // Импорт иконок для кнопки закрепления
 const PinIcon = require('../images/icons/pin.png');
 const PinActiveIcon = require('../images/icons/pin_active.png');
 const ReloadIcon = require('../images/icons/spin_reload.png');
+
+// Импорт фоновых изображений
+const BackgroundStripes = require('../images/backgroud_stripes.png');
+const BackgroundStripesActive = require('../images/background_stripes_active.png');
 
 // Для LayoutAnimation на Android
 if (Platform.OS === 'android') {
@@ -17,7 +22,7 @@ if (Platform.OS === 'android') {
   }
 }
 
-function ChangeServerScreen({ navigation }) {
+function ChangeServerScreen({ navigation, route }) {
   const [isAutomaticSelectionOn, setIsAutomaticSelectionOn] = useState(false);
   const [servers, setServers] = useState([
     { id: 1, name: "Moscow", location: "Moscow", ping: 65, isPinned: false },
@@ -29,6 +34,7 @@ function ChangeServerScreen({ navigation }) {
     { id: 7, name: "Sydney", location: "Sydney", ping: 150, isPinned: false },
   ].sort((a, b) => a.ping - b.ping)); // Изначальная сортировка по пингу
   const [activeServerId, setActiveServerId] = useState(null);
+  const [connected, setConnected] = useState(false);
 
   // Ref для хранения анимированных значений каждого элемента списка
   const animatedValues = useRef({}).current;
@@ -65,6 +71,23 @@ function ChangeServerScreen({ navigation }) {
     };
     loadActiveServer();
   }, []);
+
+  // Загрузка состояния connected при фокусировке экрана
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadConnectedStatus = async () => {
+        try {
+          const storedConnected = await AsyncStorage.getItem('connected');
+          if (storedConnected !== null) {
+            setConnected(JSON.parse(storedConnected));
+          }
+        } catch (e) {
+          console.error("Ошибка при загрузке connected из AsyncStorage в ChangeServerScreen:", e);
+        }
+      };
+      loadConnectedStatus();
+    }, [])
+  );
 
   const saveActiveServer = async (id) => {
     try {
@@ -160,7 +183,7 @@ function ChangeServerScreen({ navigation }) {
 
   return (
     <ImageBackground
-      source={require('../images/backgroud_stripes.png')}
+      source={connected ? BackgroundStripesActive : BackgroundStripes} // Динамический выбор фона
       style={{ flex: 1 }}
       resizeMode="stretch"
     >

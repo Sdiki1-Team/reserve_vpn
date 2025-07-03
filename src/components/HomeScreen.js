@@ -7,6 +7,9 @@ import { pixelToHeight } from '../styles/commonStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
+// Импорт фоновых изображений
+const BackgroundStripes = require('../images/backgroud_stripes.png');
+const BackgroundStripesActive = require('../images/background_stripes_active.png');
 
 
 const { width } = Dimensions.get('window');
@@ -47,11 +50,12 @@ function HomeScreen({ navigation }) {
     }
   }, [servers, currentServer]);
 
-  // Загрузка активного сервера из AsyncStorage при фокусировке экрана
+  // Загрузка активного сервера и состояния connected из AsyncStorage при фокусировке экрана
   useFocusEffect(
     React.useCallback(() => {
-      const loadActiveServer = async () => {
+      const loadData = async () => {
         try {
+          // Загрузка активного сервера
           const storedServerId = await AsyncStorage.getItem('activeServerId');
           if (storedServerId !== null) {
             const foundServer = servers.find(s => s.id === parseInt(storedServerId, 10));
@@ -63,14 +67,21 @@ function HomeScreen({ navigation }) {
           } else { // Если в AsyncStorage ничего нет
             setCurrentServer(servers[0]); // Установить первый по умолчанию
           }
+
+          // Загрузка состояния connected
+          const storedConnected = await AsyncStorage.getItem('connected');
+          if (storedConnected !== null) {
+            setConnected(JSON.parse(storedConnected));
+          }
+
         } catch (e) {
-          console.error("Ошибка при загрузке активного сервера из AsyncStorage в HomeScreen:", e);
+          console.error("Ошибка при загрузке данных из AsyncStorage в HomeScreen:", e);
           setCurrentServer(servers[0]); // В случае ошибки также установить первый по умолчанию
         }
       };
 
       if (servers.length > 0) {
-        loadActiveServer();
+        loadData();
       }
     }, [servers])
   );
@@ -156,6 +167,8 @@ function HomeScreen({ navigation }) {
     console.log('Кнопка нажата, состояние подключения:', !connected); // Временный лог для отладки
     const newState = !connected;
     setConnected(newState);
+    // Сохранение состояния connected в AsyncStorage
+    AsyncStorage.setItem('connected', JSON.stringify(newState)).catch(e => console.error("Ошибка при сохранении connected в AsyncStorage:", e));
     if (!newState) {
       setShowSpeedometer(false);
       setSelectedSpeedType(null); // Сбрасываем выбор типа скорости
@@ -178,7 +191,7 @@ function HomeScreen({ navigation }) {
 
   const renderServerPanel = () => {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('ChangeServer')}>
+      <TouchableOpacity onPress={() => navigation.navigate('ChangeServer', { connected: connected })}>
         <View style={styles.serverBar}>
           <View style={styles.serverLeftContent}>
           <Text style={styles.serverLabel}>Server</Text>
@@ -457,7 +470,7 @@ function HomeScreen({ navigation }) {
 
   return (
     <ImageBackground
-      source={require('../images/backgroud_stripes.png')}
+      source={connected ? BackgroundStripesActive : BackgroundStripes} // Динамический выбор фона
       style={{ flex: 1 }}
       resizeMode="stretch"
     >

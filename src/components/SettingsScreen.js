@@ -5,149 +5,63 @@ import { commonStyles } from '../styles/commonStyles';
 import ToggleSwitch from './ToggleSwitch';
 import { Linking } from 'react-native';
 import { pixelToHeight } from '../styles/commonStyles';
+import BackButton from './BackButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
+// Импорт фоновых изображений
+const BackgroundStripes = require('../images/backgroud_stripes.png');
+const BackgroundStripesActive = require('../images/background_stripes_active.png');
 
-function SettingsParametersScreen({ navigation }) {
-  const [deviceModalVisible, setDeviceModalVisible] = useState(false);
-  const [languageModalVisible, setLanguageModalVisible] = useState(false);
-  const [smartFiltering, setSmartFiltering] = useState(false);
-  const [vpnFiltering, setVpnFiltering] = useState(true);
-  const [subscriptionControl, setSubscriptionControl] = useState(false);
-  const [autoSwitch, setAutoSwitch] = useState(true);
+function SettingsScreen({ navigation }) {
+  const [connected, setConnected] = useState(false);
+
+  // Загрузка состояния connected при фокусировке экрана
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadConnectedStatus = async () => {
+        try {
+          const storedConnected = await AsyncStorage.getItem('connected');
+          if (storedConnected !== null) {
+            setConnected(JSON.parse(storedConnected));
+          }
+        } catch (e) {
+          console.error("Ошибка при загрузке connected из AsyncStorage в SettingsScreen:", e);
+        }
+      };
+      loadConnectedStatus();
+    }, [])
+  );
 
   return (
     <ImageBackground
-      source={require('../images/backgroud_stripes.png')}
+      source={connected ? BackgroundStripesActive : BackgroundStripes} // Динамический выбор фона
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={styles.container}>
-        {/* Тумблеры */}
-        <Text style={[commonStyles.titleText, {marginTop: pixelToHeight(Platform.OS === 'ios' ? 30 : 0)}]}>Settings</Text>
+      <View style={[commonStyles.centeredContainer, { paddingTop: pixelToHeight(Platform.OS === 'ios' ? 75 : 50) }]}>
+        <BackButton onPress={() => navigation.goBack()} />
+        <Text style={commonStyles.titleText}>Settings</Text>
 
-        <View style={styles.togglesContainer}>
-        <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Smart application filtering</Text>
-            <ToggleSwitch
-              value={smartFiltering}
-              onValueChange={setSmartFiltering}
-            />
-          </View>
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>VPN service filtering</Text>
-            <ToggleSwitch
-              value={vpnFiltering}
-              onValueChange={setVpnFiltering}
-            />
-          </View>
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>Subscription control</Text>
-            <ToggleSwitch
-              value={subscriptionControl}
-              onValueChange={setSubscriptionControl}
-            />
-          </View>
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleText}>VPN auto switch</Text>
-            <ToggleSwitch
-              value={autoSwitch}
-              onValueChange={setAutoSwitch}
-            />
-          </View>
-        </View>
-
-        <View style={styles.divider} />
-
-        {/* Кнопка "Семейная подписка" */}
-        <TouchableOpacity style={[styles.purpleButton, styles.familyButton]} onPress={() => navigation.navigate('FamilySubscribe')}>
-          <Text style={styles.buttonText}>Семейная подписка</Text>
+        <TouchableOpacity
+          style={styles.settingButton}
+          onPress={() => navigation.navigate('SettingsConnection')}
+        >
+          <Text style={styles.settingButtonText}>Connection</Text>
         </TouchableOpacity>
 
-        {/* Ссылка "Мои устройства" */}
-        <TouchableOpacity 
-          style={styles.navRow}
-          onPress={() => setDeviceModalVisible(true)}
+        <TouchableOpacity
+          style={styles.settingButton}
+          onPress={() => navigation.navigate('SettingsVPNMOde')}
         >
-          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Настройки подключения</Text>
-          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
-            <Text style={styles.arrow}>›</Text>
-          </View>
+          <Text style={styles.settingButtonText}>VPN Mode</Text>
         </TouchableOpacity>
 
-        {/* Модальное окно для "Мои устройства" */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={deviceModalVisible}
-          onRequestClose={() => setDeviceModalVisible(false)}
+        <TouchableOpacity
+          style={styles.settingButton}
+          onPress={() => navigation.navigate('SettingsParameters')}
         >
-          <View style={styles.modalView}>
-            <Text>Здесь будет информация о ваших устройствах.</Text>
-            <TouchableOpacity onPress={() => setDeviceModalVisible(false)}>
-              <Text>Закрыть</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={languageModalVisible}
-          onRequestClose={() => setLanguageModalVisible(false)}
-        >
-          <View style={styles.modalView}>
-            <Text>Здесь будет информация о ваших устройствах.</Text>
-            <TouchableOpacity onPress={() => setLanguageModalVisible(false)}>
-              <Text>Закрыть</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-
-        <View style={styles.divider} />
-
-        {/* Ссылки на поддержку и оценку приложения */}
-        <TouchableOpacity 
-          style={styles.navRow}
-          onPress={() => Linking.openURL('https://www.google.com')}
-        >
-          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Поддержка</Text>
-          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
-            <Text style={styles.arrow}>›</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navRow}
-          onPress={() => Linking.openURL('https://www.google.com')}
-        >
-          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Оцени приложение</Text>
-          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
-            <Text style={styles.arrow}>›</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navRow}
-          onPress={() => setLanguageModalVisible(true)}
-        >
-          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Язык</Text>
-          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
-            <Text style={styles.arrow}>›</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navRow}
-          onPress={() => Linking.openURL('https://www.google.com')}
-        >
-          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>О нас</Text>
-          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
-            <Text style={styles.arrow}>›</Text>
-          </View>
-        </TouchableOpacity>
-
-        <View style={styles.divider} />
-
-        {/* Кнопка "Параметры RESERVE" */}
-        <TouchableOpacity style={styles.purpleButton} onPress={() => navigation.navigate('SettingsParameters')}>
-          <Text style={styles.buttonText}>Параметры RESERVE</Text>
+          <Text style={styles.settingButtonText}>Parameters</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -238,6 +152,19 @@ const styles = StyleSheet.create({
     shadowRadius: pixelToHeight(4),
     elevation: 5,
   },
+  settingButton: {
+    backgroundColor: '#191919',
+    borderRadius: pixelToHeight(10),
+    padding: pixelToHeight(15),
+    width: '90%',
+    marginBottom: pixelToHeight(15),
+    alignItems: 'center',
+  },
+  settingButtonText: {
+    color: 'white',
+    fontSize: pixelToHeight(18),
+    fontWeight: 'bold',
+  },
 });
 
-export default SettingsParametersScreen;
+export default SettingsScreen;
