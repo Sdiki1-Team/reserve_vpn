@@ -1,9 +1,15 @@
 import React, { useRef, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import SvgIcon from './SvgIcon';
 import { pixelToHeight } from '../styles/commonStyles';
 
+// Импорт изображений
+const HomeIcon = require('../images/icons/home.png');
+const HomeActiveIcon = require('../images/icons/home_active.png');
+const ProfileIcon = require('../images/icons/profile.png');
+const ProfileActiveIcon = require('../images/icons/profile_active.png');
+const SettingsIcon = require('../images/icons/setting.png');
+const SettingsActiveIcon = require('../images/icons/setting_active.png');
 
 const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
   const insets = useSafeAreaInsets();
@@ -22,13 +28,13 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
   const getIcon = (routeName, isFocused) => {
     switch (routeName) {
       case 'HomeTab':
-        return isFocused ? 'home-filled' : 'home';
+        return isFocused ? HomeActiveIcon : HomeIcon;
       case 'ProfileTab':
-        return isFocused ? 'profile-filled' : 'profile';
+        return isFocused ? ProfileActiveIcon : ProfileIcon;
       case 'SettingsTab':
-        return isFocused ? 'settings-filled' : 'settings';
+        return isFocused ? SettingsActiveIcon : SettingsIcon;
       default:
-        return 'home';
+        return HomeIcon;
     }
   };
 
@@ -145,19 +151,13 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
                   opacity: animatedValues[route.key]?.opacity || 1,
                   justifyContent: isFocused ? 'flex-start' : 'center',
                   width: isFocused ? 'auto' : '100%',
-                  // Отрицательные отступы для увеличения размера
-                  ...(isFocused && {
-                    marginHorizontal: pixelToHeight(-10), // 10px с каждой стороны = +20px общая ширина
-                    zIndex: 10,
-                  }),
+                  zIndex: 10,
                 }
               ]}
             >
-              <SvgIcon 
-                name={getIcon(route.name, isFocused)}
-                size={pixelToHeight(24)}
-                color={isFocused ? '#FFFFFF' : '#FFFFFF'}
-                style={[styles.icon, { marginRight: isFocused ? pixelToHeight(8) : 0 }]} // Отступ только для активной вкладки
+              <Image 
+                source={getIcon(route.name, isFocused)}
+                style={[styles.icon, { marginRight: isFocused ? pixelToHeight(8) : 0, width: pixelToHeight(24), height: pixelToHeight(24), tintColor: isFocused ? '#2C2C2C' : '#FFFFFF' }]} // Отступ только для активной вкладки
               />
               {isFocused && (
                 <Text style={[styles.activeTabText, { color: isFocused ? '#2C2C2C' : '#FFFFFF' }]}>
@@ -182,7 +182,8 @@ const styles = StyleSheet.create({
     marginHorizontal: pixelToHeight(15), // Отступы от краев экрана на 15px
     marginBottom: pixelToHeight(15), // Отступ снизу
     paddingHorizontal: pixelToHeight(15), // Отступы по 15px с каждой стороны
-    maxHeight: pixelToHeight(60),
+    maxHeight: pixelToHeight(70),
+    minHeight: pixelToHeight(70),
     elevation: 8,
   },
   tabButton: {
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   icon: {
-    margin: 'auto !important',
+    resizeMode: 'contain',
   },
   activeTabText: {
     color: 'white',
