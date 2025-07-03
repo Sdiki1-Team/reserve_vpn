@@ -353,8 +353,8 @@ const styles = StyleSheet.create({
     fontSize: pixelToHeight(20),
   },
   pinIconImage: {
-    width: pixelToHeight(40),
-    height: pixelToHeight(40),
+    width: pixelToHeight(25),
+    height: pixelToHeight(25),
     resizeMode: 'contain',
   },
 });

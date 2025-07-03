@@ -189,23 +189,23 @@ const styles = StyleSheet.create({
   tabButton: {
     flex: 1, // Каждая кнопка занимает равную часть
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: pixelToHeight(8),
+    paddingVertical: pixelToHeight(13),
     maxHeight: pixelToHeight(70),
     minHeight: pixelToHeight(70),
   },
   tabContent: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center', // По умолчанию центрируем
     paddingHorizontal: pixelToHeight(8),
     paddingVertical: pixelToHeight(11),
-    borderRadius: pixelToHeight(20),
+    borderRadius: pixelToHeight(50),
     minWidth: pixelToHeight(40),
-    maxWidth: '100%', // Ограничиваем максимальную ширину
   },
   activeTabContent: {
     backgroundColor: '#723CEB', // Фиолетовый цвет для активной вкладки
