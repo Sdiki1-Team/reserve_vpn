@@ -16,6 +16,7 @@ export const commonStyles = StyleSheet.create({
     flex: 1,
     paddingTop: pixelToHeight(Platform.OS === 'ios' ? 55 : 25), 
     backgroundColor: '#101010',
+    padding: pixelToHeight(20)
   },
   
    centeredContainer: {

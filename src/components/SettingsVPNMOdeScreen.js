@@ -1,128 +1,122 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Switch, Platform } from 'react-native';
-import { commonStyles } from '../styles/commonStyles';
-import { pixelToHeight } from '../styles/commonStyles';
-import BackButton from './BackButton';
-import ToggleSwitch from './ToggleSwitch';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Animated, Dimensions, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-
-// Импорт фоновых изображений
-const BackgroundStripes = require('../images/backgroud_stripes.png');
-const BackgroundStripesActive = require('../images/background_stripes_active.png');
+import { commonStyles } from '../styles/commonStyles';
+import BackButton from './BackButton';
+import { pixelToHeight } from '../styles/commonStyles';
 
 
-function SettingsVPNMOdeScreen({ navigation }) {
-  const [killSwitchEnabled, setKillSwitchEnabled] = useState(false);
-  const [protocol, setProtocol] = useState('UDP');
-  const [connected, setConnected] = useState(false); // Новое состояние connected
+const modes = [
+  {
+    title: 'Классический',
+    description: 'Для: повседневки — мессенджеры, банки, гугл',
+    details: '(Нормальный шифр, автообновление, низкий пинг)',
+  },
+  {
+    title: 'Турбо',
+    description: 'Для: гейминга, торрента',
+    details: '(Прямое соединение, минимальный пинг)',
+  },
+  {
+    title: 'Стриминг',
+    description: 'Для: Twitch, Netflix, YouTube',
+    details: '(Высокие скорости и качество, быстрая загрузка)',
+  },
+  {
+    title: 'Параноик',
+    description: 'Для: секретных задач',
+    details: '(Три слоя шифра, прыжки между серверами, антиотпечаток, ни DNS, ни WebRTC)',
+  },
+];
 
-  // Загрузка состояния connected при фокусировке экрана
-  useFocusEffect(
-    React.useCallback(() => {
-      const loadConnectedStatus = async () => {
-        try {
-          const storedConnected = await AsyncStorage.getItem('connected');
-          if (storedConnected !== null) {
-            setConnected(JSON.parse(storedConnected));
-          }
-        } catch (e) {
-          console.error("Ошибка при загрузке connected из AsyncStorage в SettingsVPNMOdeScreen:", e);
-        }
-      };
-      loadConnectedStatus();
-    }, [])
-  );
+const STORAGE_KEY = 'selected_mode';
 
-  const handleKillSwitchToggle = () => {
-    setKillSwitchEnabled(!killSwitchEnabled);
-  };
+function SettingsVPNModeScreen({ navigation }) {
+  const [selectedMode, setSelectedMode] = useState(0);
+  const animatedValue = new Animated.Value(0);
 
-  const handleProtocolChange = (newProtocol) => {
-    setProtocol(newProtocol);
+  useEffect(() => {
+    const loadSelectedMode = async () => {
+      const storedMode = await AsyncStorage.getItem(STORAGE_KEY);
+      if (storedMode !== null) {
+        setSelectedMode(Number(storedMode));
+      }
+    };
+
+    loadSelectedMode();
+  }, []);
+
+  const handleSelectMode = async (index) => {
+    if (selectedMode === index) return;
+    setSelectedMode(index);
+    await AsyncStorage.setItem(STORAGE_KEY, index.toString());
+    Animated.timing(animatedValue, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      animatedValue.setValue(0);
+    });
   };
 
   return (
     <ImageBackground
-      source={connected ? BackgroundStripesActive : BackgroundStripes} // Динамический выбор фона
+      source={require('../images/backgroud_stripes.png')}
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[commonStyles.centeredContainer, { paddingTop: pixelToHeight(Platform.OS === 'ios' ? 75 : 50) }]}>
+      <View style={[commonStyles.container, { paddingTop: pixelToHeight(Platform.OS == 'ios' ? 110 : 80), marginTop: 0 }]}>
+        <Text style={[commonStyles.titleText, commonStyles.absouluteCenteredTitile]}>VPN Mode Selection</Text>
         <BackButton onPress={() => navigation.goBack()} />
-        <Text style={commonStyles.titleText}>VPN Mode</Text>
 
-        <View style={styles.settingsGroup}>
-          <Text style={styles.groupTitle}>Kill Switch</Text>
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Kill Switch</Text>
-            <ToggleSwitch
-              isOn={killSwitchEnabled}
-              onToggle={handleKillSwitchToggle}
-            />
-          </View>
-        </View>
+        {modes.map((mode, index) => {
+          const isSelected = selectedMode === index;
+          const borderColor = isSelected ? '#723CEB' : 'transparent';
+          const animatedScale = animatedValue.interpolate({
+            inputRange: [0, 1],
+            outputRange: [1, 1.05],
+          });
 
-        <View style={styles.settingsGroup}>
-          <Text style={styles.groupTitle}>Protocol</Text>
-          <TouchableOpacity
-            style={[styles.protocolButton, protocol === 'UDP' && styles.protocolButtonActive]}
-            onPress={() => handleProtocolChange('UDP')}
-          >
-            <Text style={styles.protocolButtonText}>UDP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.protocolButton, protocol === 'TCP' && styles.protocolButtonActive]}
-            onPress={() => handleProtocolChange('TCP')}
-          >
-            <Text style={styles.protocolButtonText}>TCP</Text>
-          </TouchableOpacity>
-        </View>
+          return (
+            <TouchableOpacity 
+              key={index}
+              style={[styles.modeBlock, { borderColor: borderColor, borderWidth: 2, transform: [{ scale: animatedScale }] }]}
+              onPress={() => handleSelectMode(index)}
+            >
+              <Text style={styles.modeTitle}>{mode.title}</Text>
+              <Text style={styles.modeDescription}>{mode.description}</Text>
+              <Text style={styles.modeDetails}>{mode.details}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  settingsGroup: {
-    backgroundColor: '#191919',
-    borderRadius: pixelToHeight(10),
+  modeBlock: {
+    backgroundColor: '#191920',
+    borderRadius: pixelToHeight(15),
     padding: pixelToHeight(15),
-    width: '90%',
-    marginBottom: pixelToHeight(20),
+    marginVertical: pixelToHeight(10),
+    marginHorizontal: 'auto',
+    width: pixelToHeight(Dimensions.get('window').width / 100 * 95),
+    alignItems: 'flex-start',
   },
-  groupTitle: {
-    color: 'white',
-    fontSize: pixelToHeight(18),
-    fontWeight: 'bold',
-    marginBottom: pixelToHeight(10),
+  modeTitle: {
+    fontSize: pixelToHeight(15),
+    color: '#FFFFFF',
+    marginBottom: 1,
   },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: pixelToHeight(10),
+  modeDescription: {
+    fontSize: pixelToHeight(15),
+    color: '#7F8E9D',
   },
-  settingLabel: {
-    color: '#AAAAAA',
-    fontSize: pixelToHeight(16),
-  },
-  protocolButton: {
-    backgroundColor: '#333',
-    borderRadius: pixelToHeight(8),
-    paddingVertical: pixelToHeight(10),
-    paddingHorizontal: pixelToHeight(15),
-    marginBottom: pixelToHeight(10),
-    alignItems: 'center',
-  },
-  protocolButtonActive: {
-    backgroundColor: '#723CEB',
-  },
-  protocolButtonText: {
-    color: 'white',
-    fontSize: pixelToHeight(16),
-    fontWeight: 'bold',
+  modeDetails: {
+    fontSize: pixelToHeight(15),
+    color: '#723CEB',
   },
 });
 
-export default SettingsVPNMOdeScreen;
+export default SettingsVPNModeScreen;

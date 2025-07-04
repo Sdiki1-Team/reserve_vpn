@@ -1,83 +1,208 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Modal, Dimensions, Platform } from 'react-native';
 import { commonStyles } from '../styles/commonStyles';
-import { pixelToHeight } from '../styles/commonStyles';
 import BackButton from './BackButton';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import TimePicker from './TimePicker';
+import { pixelToHeight } from '../styles/commonStyles';
 
-// Импорт фоновых изображений
-const BackgroundStripes = require('../images/backgroud_stripes.png');
-const BackgroundStripesActive = require('../images/background_stripes_active.png');
 
 function SettingsConnectionScreen({ navigation }) {
-  const [connected, setConnected] = useState(false); // Новое состояние connected
+  const [isTimePickerVisible, setTimePickerVisible] = useState(false);
+  const [selectedConnectionTime, setSelectedConnectionTime] = useState('00:00:00');
+  const [selectedDisconnectionTime, setSelectedDisconnectionTime] = useState('00:00:00');
+  const [autoConnect, setAutoConnect] = useState('wifi'); // 'wifi' or 'mobile'
+  const [timePickerType, setTimePickerType] = useState('connection'); // 'connection' or 'disconnection'
 
-  // Загрузка состояния connected при фокусировке экрана
-  useFocusEffect(
-    React.useCallback(() => {
-      const loadConnectedStatus = async () => {
-        try {
-          const storedConnected = await AsyncStorage.getItem('connected');
-          if (storedConnected !== null) {
-            setConnected(JSON.parse(storedConnected));
-          }
-        } catch (e) {
-          console.error("Ошибка при загрузке connected из AsyncStorage в SettingsConnectionScreen:", e);
-        }
-      };
-      loadConnectedStatus();
-    }, [])
-  );
+  const toggleAutoConnect = (type) => {
+    if (autoConnect !== type) {
+      setAutoConnect(type);
+    }
+  };
+
+  const handleTimeChange = (newTime) => {
+    if (timePickerType === 'connection') {
+      setSelectedConnectionTime(newTime);
+    } else {
+      setSelectedDisconnectionTime(newTime);
+    }
+  };
 
   return (
     <ImageBackground
-      source={connected ? BackgroundStripesActive : BackgroundStripes} // Динамический выбор фона
+      source={require('../images/backgroud_stripes.png')}
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[commonStyles.centeredContainer, { paddingTop: pixelToHeight(Platform.OS === 'ios' ? 75 : 50) }]}>
+      <View style={[commonStyles.container, { paddingTop: pixelToHeight(Platform.OS === 'ios' ? 55 : 25) }]}>
+        <Text style={commonStyles.titleText}>Network Settings</Text>
         <BackButton onPress={() => navigation.goBack()} />
-        <Text style={commonStyles.titleText}>Connection Settings</Text>
 
-        <TouchableOpacity
-          style={styles.settingButton}
-          onPress={() => alert('IP Configuration')}
+        {/* Время подключения */}
+        <View style={styles.timeContainer}>
+          <Text style={styles.labelText}>Время подключения</Text>
+          <TouchableOpacity 
+            style={styles.timeBlock}
+            onPress={() => {
+              setTimePickerType('connection');
+              setTimePickerVisible(true);
+            }}
+          >
+            <Text style={styles.timeText}>{selectedConnectionTime}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Время отключения */}
+        <View style={styles.timeContainer}>
+          <Text style={styles.labelText}>Время отключения</Text>
+          <TouchableOpacity 
+            style={styles.timeBlock}
+            onPress={() => {
+              setTimePickerType('disconnection');
+              setTimePickerVisible(true);
+            }}
+          >
+            <Text style={styles.timeText}>{selectedDisconnectionTime}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Авто-подключение */}
+        <Text style={styles.titleText}>Авто-подключение</Text>
+        <View style={styles.autoConnectContainer}>
+          <TouchableOpacity 
+            style={[styles.autoConnectBlock, autoConnect === 'wifi' && styles.activeBlock]}
+            onPress={() => toggleAutoConnect('wifi')}
+          >
+            <Text style={styles.autoConnectText}>По WI-FI</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.autoConnectBlock, autoConnect === 'mobile' && styles.activeBlock]}
+            onPress={() => toggleAutoConnect('mobile')}
+          >
+            <Text style={styles.autoConnectText}>По мобильной сети</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Ссылки на вкладки */}
+        <TouchableOpacity 
+          style={commonStyles.linkButton}
+          onPress={() => navigation.navigate('AppSelection')}
         >
-          <Text style={styles.settingButtonText}>IP Configuration</Text>
+          <Text style={commonStyles.linkText}>Приложения</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={commonStyles.linkButton}
+          onPress={() => navigation.navigate('SiteSelection')}
+        >
+          <Text style={commonStyles.linkText}>Сайты</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.settingButton}
-          onPress={() => alert('DNS Settings')}
+        {/* Навигационные элементы */}
+        <TouchableOpacity 
+          style={styles.navRow}
+          onPress={() => navigation.navigate('AppSelection')}
         >
-          <Text style={styles.settingButtonText}>DNS Settings</Text>
+          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Приложения</Text>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
+            <Text style={styles.arrow}>›</Text>
+          </View>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.settingButton}
-          onPress={() => alert('Proxy Settings')}
+        
+        <TouchableOpacity 
+          style={styles.navRow}
+          onPress={() => navigation.navigate('SiteSelection')}
         >
-          <Text style={styles.settingButtonText}>Proxy Settings</Text>
+          <Text style={[styles.navText, { flex: 1 }]} numberOfLines={1}>Сайты</Text>
+          <View style={{ width: pixelToHeight(30), alignItems: 'flex-end' }}>
+            <Text style={styles.arrow}>›</Text>
+          </View>
         </TouchableOpacity>
       </View>
+
+      {/* Модальное окно выбора времени */}
+      <Modal
+        visible={isTimePickerVisible}
+        transparent={true}
+        animationType="slide"
+      >
+        <TimePicker 
+          currentTime={timePickerType === 'connection' ? selectedConnectionTime : selectedDisconnectionTime}
+          onTimeChange={handleTimeChange}
+          onClose={() => setTimePickerVisible(false)}
+        />
+      </Modal>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  settingButton: {
-    backgroundColor: '#191919',
-    borderRadius: pixelToHeight(10),
-    padding: pixelToHeight(15),
-    width: '90%',
-    marginBottom: pixelToHeight(15),
+  titleText: {
+    marginTop: pixelToHeight(20),
+    color: 'white',
+    fontSize: pixelToHeight(20),
+    fontWeight: 'bold',
+    textAlign: 'center',
+
+  },
+  navRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: pixelToHeight(10),
+    marginBottom: pixelToHeight(4),
+  },
+  navText: {
+    color: '#FFFFFF',
+    fontSize: pixelToHeight(16),
+    fontWeight: '500',
+  },
+  arrow: {
+    color: '#723CEB',
+    fontSize: pixelToHeight(20),
+    fontWeight: 'bold',
+  },
+  timeContainer: {
+    display: 'flex',
+    width: pixelToHeight(Dimensions.get('window').width - 30),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: pixelToHeight(10),
+  },
+  labelText: {
+    color: '#D3D3D3', // Светло-серый
+    marginRight: pixelToHeight(10),
+  },
+  timeBlock: {
+    borderColor: '#723CEB',
+    borderWidth: pixelToHeight(2),
+    borderRadius: pixelToHeight(5),
+    paddingHorizontal: pixelToHeight(10),
+    maxWidth: pixelToHeight(100),
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  timeText: {
+    color: '#D3D3D3', // Светло-серый
+  },
+  autoConnectContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: pixelToHeight(20),
+  },
+  autoConnectBlock: {
+    flex: 1,
+    borderColor: 'transparent',
+    borderWidth: pixelToHeight(2),
+    borderRadius: pixelToHeight(5),
+    padding: pixelToHeight(10),
     alignItems: 'center',
   },
-  settingButtonText: {
-    color: 'white',
-    fontSize: pixelToHeight(18),
-    fontWeight: 'bold',
+  activeBlock: {
+    borderColor: '#723CEB',
+  },
+  autoConnectText: {
+    color: '#D3D3D3', // Светло-серый
   },
 });
 
