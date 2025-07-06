@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Image } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { pixelToHeight } from '../styles/commonStyles';
 
 // Импорт изображений
@@ -12,7 +11,6 @@ const SettingsIcon = require('../images/icons/setting.png');
 const SettingsActiveIcon = require('../images/icons/setting_active.png');
 
 const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
-  const insets = useSafeAreaInsets();
   const animatedValues = useRef({}).current;
 
   // Инициализация анимированных значений для каждой вкладки
@@ -100,7 +98,7 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
   }, [state.index, state.routes, animateTab]);
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+    <View style={[styles.container]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label = options.tabBarLabel !== undefined ? options.tabBarLabel : options.title !== undefined ? options.title : route.name;
@@ -174,6 +172,9 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
 
 const styles = StyleSheet.create({
   container: {
+    borderColor: 'red',
+    borderWidth: 1,
+
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'row',
@@ -187,6 +188,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   tabButton: {
+    borderColor: 'red',
+    borderWidth: 1,
+    
     flex: 1, // Каждая кнопка занимает равную часть
     display: 'flex',
     flexDirection: 'column',
@@ -197,6 +201,9 @@ const styles = StyleSheet.create({
     minHeight: pixelToHeight(70),
   },
   tabContent: {
+    borderColor: 'red',
+    borderWidth: 1,
+    
     flex: 1,
     display: 'flex',
     flexDirection: 'row',
@@ -204,6 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', // По умолчанию центрируем
     paddingHorizontal: pixelToHeight(8),
     paddingVertical: pixelToHeight(11),
+    marginVertical: 'auto',
     borderRadius: pixelToHeight(50),
     minWidth: pixelToHeight(40),
   },
