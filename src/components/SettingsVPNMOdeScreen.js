@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     padding: pixelToHeight(15),
     marginVertical: pixelToHeight(10),
     marginHorizontal: 'auto',
-    width: pixelToHeight(Dimensions.get('window').width / 100 * 95),
+    width: '100%',
     alignItems: 'flex-start',
   },
   modeTitle: {

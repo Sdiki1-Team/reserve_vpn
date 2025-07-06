@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     display: 'flex',
-    width: pixelToHeight(Dimensions.get('window').width - 30),
+    width: Dimensions.get('window').width - pixelToHeight(30),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

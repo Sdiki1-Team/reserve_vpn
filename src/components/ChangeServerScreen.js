@@ -196,8 +196,8 @@ function ChangeServerScreen({ navigation, route }) {
           >
             <Image source={require("../images/icons/spin_reload.png")} style={styles.reloadImage}></Image>
           </TouchableOpacity>
-
-        <TouchableOpacity
+        
+        <TouchableOpacity 
           style={[styles.automaticSelectionButton, { backgroundColor: isAutomaticSelectionOn ? '#723CEB' : '#191919' }]}
           onPress={handleAutomaticSelectionToggle}
         >

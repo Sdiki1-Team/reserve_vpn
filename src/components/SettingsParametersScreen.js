@@ -22,6 +22,7 @@ function SettingsParameters({ navigation }) {
   const [startupEnable, setStartupEnable] = useState(true);
   const [tempSessions, setTempSessions] = useState(false);
 
+
   return (
     <ImageBackground
       source={require('../images/backgroud_stripes.png')}
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     marginBottom: pixelToHeight(30),
-    marginTop: pixelToHeight(Platform.OS == 'ios' ? 45 : 15)
+    marginTop: pixelToHeight(Platform.OS === 'ios' ? 45 : 15)
   },
   togglesContainer: {
     width: '100%',
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
   divider: {
     minHeight: pixelToHeight(2),
     height: pixelToHeight(2),
-    minWidth: pixelToHeight(Dimensions.get('window').width - 40),
+    minWidth: "90%",
     backgroundColor: 'grey',
     marginTop: pixelToHeight(20),
     marginBottom: pixelToHeight(-20)
