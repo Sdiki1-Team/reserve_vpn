@@ -591,26 +591,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginTop: pixelToHeight(20),
   },
-  tariffTab: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: (Dimensions.get('window').width - 40) / 3 - 10,
-
-  },
-  activeTariffTab: {
-    backgroundColor: '#723CEB',
-    marginVertical: pixelToHeight(4),
-    borderRadius: pixelToHeight(8),
-  },
-  tariffText: {
-    color: 'white',
-    fontWeight: 400,
-  },
-  activeTariffText: {
-    color: 'white',
-    fontWeight: '400',
-    fontSize: pixelToHeight(14),
-  },
+  
   divider: {
     width: 1,
     backgroundColor: '#999',
