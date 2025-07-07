@@ -172,9 +172,6 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    borderColor: 'red',
-    borderWidth: 1,
-
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'row',
@@ -188,9 +185,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   tabButton: {
-    borderColor: 'red',
-    borderWidth: 1,
-    
     flex: 1, // Каждая кнопка занимает равную часть
     display: 'flex',
     flexDirection: 'column',
@@ -201,9 +195,6 @@ const styles = StyleSheet.create({
     minHeight: pixelToHeight(70),
   },
   tabContent: {
-    borderColor: 'red',
-    borderWidth: 1,
-    
     flex: 1,
     display: 'flex',
     flexDirection: 'row',
