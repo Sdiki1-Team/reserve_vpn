@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Dimensions, Image, Animated, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Dimensions, Image, Animated, Platform, AppState } from 'react-native';
 import { CircularProgress } from 'react-native-circular-progress';
 import { commonStyles } from '../styles/commonStyles';
 import LinearGradient from 'react-native-linear-gradient';
 import { pixelToHeight } from '../styles/commonStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { getAllWireGuardConfigs, parseWireGuardConfig, configsPath } from '../config/configs';
+import RNReactNativePing from 'react-native-ping';
+import { vpnService } from '../system_functions/VPNService';
+import NetInfo from '@react-native-community/netinfo';
 
 // Импорт фоновых изображений
 const BackgroundStripes = require('../images/backgroud_stripes.png');
@@ -16,16 +20,18 @@ const { width } = Dimensions.get('window');
 
 function HomeScreen({ navigation }) {
   const [connected, setConnected] = useState(false);
-  const [ping, setPing] = useState(65);
+  const [ping, setPing] = useState(null);
   const [selectedSpeedType, setSelectedSpeedType] = useState(null);
   const [showSpeedometer, setShowSpeedometer] = useState(false);
   const [currentServer, setCurrentServer] = useState(null);
-  const [servers, setServers] = useState([
-    { id: 1, name: "Moscow", location: "Moscow", speed: "100 Mbps" },
-    { id: 2, name: "New-York", location: "New-York", speed: "200 Mbps" },
-    { id: 3, name: "London", location: "London", speed: "150 Mbps" },
-    { id: 4, name: "Tokyo", location: "Tokyo", speed: "300 Mbps" },
-  ]);
+  const [servers, setServers] = useState([]);
+  const [downloadSpeed, setDownloadSpeed] = useState(0);
+  const [uploadSpeed, setUploadSpeed] = useState(0);
+  const [connectionTime, setConnectionTime] = useState(0); // в секундах
+  const timerRef = useRef(null);
+  const [appState, setAppState] = useState(AppState.currentState);
+  const lastActiveTimestamp = useRef(null);
+  const prevTrafficRef = useRef({ rx: 0, tx: 0, timestamp: Date.now() });
 
   // Анимация волн
   const staticScales = useMemo(() => [1, 1, 1, 1.2, 1.4, 1.6], []);
@@ -40,15 +46,140 @@ function HomeScreen({ navigation }) {
   // Устанавливаем значения по умолчанию
   const myIp = "192.168.1.35";
   const vpnIp = "10.8.0.2";
-  const downloadSpeed = 45.6;
-  const uploadSpeed = 12.3;
+  const downloadSpeedDefault = 45.6;
+  const uploadSpeedDefault = 12.3;
 
   // Устанавливаем первый сервер по умолчанию или загружаем активный
   useEffect(() => {
     if (servers.length > 0 && currentServer === null) {
       setCurrentServer(servers[0]);
     }
+  }, [currentServer, servers]);
+
+  // Загрузка серверов из конфигов и пинга только один раз
+  useEffect(() => {
+    let cancelled = false;
+    async function loadServers() {
+      try {
+        const configs = await getAllWireGuardConfigs(configsPath);
+        const loadedServers = [];
+        for (let i = 0; i < configs.length; i++) {
+          const parsed = parseWireGuardConfig(configs[i].body);
+          let ping = null;
+          try {
+            ping = await RNReactNativePing.start(parsed.serverAddress, { timeout: 1000 });
+          } catch (e) { ping = null; }
+          loadedServers.push({
+            id: i + 1,
+            name: configs[i].name,
+            endpoint: parsed.serverAddress,
+            port: parsed.serverPort,
+            ping,
+          });
+        }
+        if (!cancelled) {
+          setServers(loadedServers);
+          if (loadedServers.length > 0) setCurrentServer(loadedServers[0]);
+        }
+      } catch (e) {
+        if (!cancelled) setServers([]);
+      }
+    }
+    loadServers();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Инициализация состояния VPN при загрузке серверов
+  useEffect(() => {
+    let cancelled = false;
+    async function initVPN() {
+      try {
+        if (!vpnService || !currentServer) return;
+        const status = await vpnService.getStatus();
+        if (cancelled) return;
+        setConnected(status.isConnected);
+        setDownloadSpeed(status.speed?.download || 0);
+        setUploadSpeed(status.speed?.upload || 0);
+        setConnectionTime(status.connectionTime || 0);
+        if (status.config) {
+          const found = servers.find(s => s.name === status.config.name);
+          if (found) setCurrentServer(found);
+        }
+        if (status.isConnected) {
+          startTimer(status.connectionTime || 0);
+        } else {
+          stopTimer();
+          setConnectionTime(0);
+        }
+      } catch (e) {}
+    }
+    if (servers.length > 0 && currentServer) {
+      initVPN();
+    }
+    return () => { cancelled = true; };
   }, [servers, currentServer]);
+
+  // Таймер подключения
+  const startTimer = (start = 0) => {
+    setConnectionTime(start);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setConnectionTime(prev => prev + 1);
+    }, 1000);
+  };
+  const stopTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = null;
+  };
+
+  // Обновление статуса VPN каждую секунду, если подключено
+  useEffect(() => {
+    let intervalId = null;
+    if (connected) {
+      intervalId = setInterval(async () => {
+        try {
+          // Получаем общую сетевую статистику
+          const state = await NetInfo.fetch();
+          await NetInfo.refresh();
+    
+          
+          setDownloadSpeed(0); // Мбит/с
+          setUploadSpeed(0); // Мбит/с
+        } catch (e) {
+          console.log(e);
+          setDownloadSpeed(0);
+          setUploadSpeed(0);
+        }
+      }, 1000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [connected]);
+
+  // AppState для фонового таймера
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      if (appState.match(/active/) && nextAppState.match(/inactive|background/)) {
+        // Уходим в фон — сохраняем timestamp
+        if (connected && timerRef.current) {
+          lastActiveTimestamp.current = Date.now();
+        }
+      }
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        // Возвращаемся из фона — корректируем connectionTime
+        if (connected && timerRef.current && lastActiveTimestamp.current) {
+          const now = Date.now();
+          const diffSec = Math.floor((now - lastActiveTimestamp.current) / 1000);
+          setConnectionTime(prev => prev + diffSec);
+          lastActiveTimestamp.current = null;
+        }
+      }
+      setAppState(nextAppState);
+    };
+    const sub = AppState.addEventListener('change', handleAppStateChange);
+    return () => sub.remove();
+  }, [connected, appState]);
 
   // Загрузка активного сервера и состояния connected из AsyncStorage при фокусировке экрана
   useFocusEffect(
@@ -163,16 +294,59 @@ function HomeScreen({ navigation }) {
     }
   }, [showSpeedometer, speedometerScale]);
 
-  const toggleConnection = () => {
-    console.log('Кнопка нажата, состояние подключения:', !connected); // Временный лог для отладки
-    const newState = !connected;
-    setConnected(newState);
-    // Сохранение состояния connected в AsyncStorage
-    AsyncStorage.setItem('connected', JSON.stringify(newState)).catch(e => console.error("Ошибка при сохранении connected в AsyncStorage:", e));
-    if (!newState) {
-      setShowSpeedometer(false);
-      setSelectedSpeedType(null); // Сбрасываем выбор типа скорости
-    }
+  // Кнопка подключения/отключения с запросом разрешения
+  const toggleConnection = async () => {
+    try {
+      if (!vpnService || !currentServer) return;
+      if (connected) {
+        await vpnService.disconnect();
+      } else {
+        // Запросить разрешение на VPN
+        if (typeof vpnService.requestPermission === 'function') {
+          const granted = await vpnService.requestPermission();
+          if (!granted) {
+            // Можно показать ошибку или уведомление
+            return;
+          }
+        }
+        await vpnService.setConfig(currentServer.name);
+        await vpnService.connect();
+      }
+      // После действия — всегда обновляем статус из сервиса
+      const status = await vpnService.getStatus();
+      setConnected(status.isConnected);
+      setDownloadSpeed(status.speed?.download || 0);
+      setUploadSpeed(status.speed?.upload || 0);
+      setConnectionTime(status.connectionTime || 0);
+      if (status.isConnected) {
+        startTimer(status.connectionTime || 0);
+      } else {
+        stopTimer();
+        setConnectionTime(0);
+      }
+    } catch (e) {}
+  };
+
+  // Переключение сервера
+  const handleServerSelect = async (server) => {
+    if (!vpnService || !server) return;
+    if (server.name === currentServer?.name) return;
+    try {
+      await vpnService.setConfig(server.name);
+      setCurrentServer(server);
+      // После смены сервера — обновляем статус
+      const status = await vpnService.getStatus();
+      setConnected(status.isConnected);
+      setDownloadSpeed(status.speed?.download || 0);
+      setUploadSpeed(status.speed?.upload || 0);
+      setConnectionTime(status.connectionTime || 0);
+      if (status.isConnected) {
+        startTimer(status.connectionTime || 0);
+      } else {
+        stopTimer();
+        setConnectionTime(0);
+      }
+    } catch (e) {}
   };
 
   const handleSpeedTypeSelect = (type) => {
@@ -290,8 +464,8 @@ function HomeScreen({ navigation }) {
             const angle = 52 - ((8 - value[1]) / 8) * 285;
             const radian = (angle * Math.PI) / 180;
             const radius = pixelToHeight(130);
-            const x = 100 + radius * Math.cos(radian);
-            const y = 100 + radius * Math.sin(radian);
+            const x = pixelToHeight(100) + radius * Math.cos(radian);
+            const y = pixelToHeight(100) + radius * Math.sin(radian);
             
             return (
               <Text
@@ -411,20 +585,20 @@ function HomeScreen({ navigation }) {
     );
   };
 
+  // В renderPingIndicator используем ping из currentServer безопасно
   const renderPingIndicator = () => {
     let activeBars = 0;
     let barColor = '#4CAF50'; // зеленый
-
-    if (ping <= 50) activeBars = 4;
-    else if (ping <= 80) activeBars = 3;
-    else if (ping <= 120) {
+    const pingValue = currentServer?.ping ?? 999;
+    if (pingValue <= 50) activeBars = 4;
+    else if (pingValue <= 80) activeBars = 3;
+    else if (pingValue <= 120) {
       activeBars = 2;
       barColor = '#FFC107'; // желтый
     } else {
       activeBars = 1;
       barColor = '#F44336'; // красный
     }
-
     return (
       <View style={styles.pingContainer}>
         {[1, 2, 3, 4].map((i) => (
@@ -440,7 +614,7 @@ function HomeScreen({ navigation }) {
             ]}
           />
         ))}
-        <Text style={styles.pingText}>{ping}ms</Text>
+        <Text style={styles.pingText}>{pingValue}ms</Text>
       </View>
     );
   };
@@ -463,9 +637,16 @@ function HomeScreen({ navigation }) {
         }
       ]}>
         <Text style={styles.connectionTimeLabel}>Connection time</Text>
-        <Text style={styles.connectionTime}>00:25:41</Text>
+        <Text style={styles.connectionTime}>{formatTime(connectionTime)}</Text>
       </Animated.View>
     );
+  };
+
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   return (

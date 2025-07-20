@@ -5,6 +5,8 @@ import { pixelToHeight } from '../styles/commonStyles';
 import BackButton from './BackButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { getAllWireGuardConfigs, parseWireGuardConfig, configsPath } from '../config/configs';
+import RNReactNativePing from 'react-native-ping';
 
 // Импорт иконок для кнопки закрепления
 const PinIcon = require('../images/icons/pin.png');
@@ -24,15 +26,7 @@ if (Platform.OS === 'android') {
 
 function ChangeServerScreen({ navigation, route }) {
   const [isAutomaticSelectionOn, setIsAutomaticSelectionOn] = useState(false);
-  const [servers, setServers] = useState([
-    { id: 1, name: "Moscow", location: "Moscow", ping: 65, isPinned: false },
-    { id: 2, name: "New-York", location: "New-York", ping: 80, isPinned: false },
-    { id: 3, name: "London", location: "London", ping: 120, isPinned: false },
-    { id: 4, name: "Tokyo", location: "Tokyo", ping: 50, isPinned: false },
-    { id: 5, name: "Paris", location: "Paris", ping: 90, isPinned: false },
-    { id: 6, name: "Berlin", location: "Berlin", ping: 75, isPinned: false },
-    { id: 7, name: "Sydney", location: "Sydney", ping: 150, isPinned: false },
-  ].sort((a, b) => a.ping - b.ping)); // Изначальная сортировка по пингу
+  const [servers, setServers] = useState([]);
   const [activeServerId, setActiveServerId] = useState(null);
   const [connected, setConnected] = useState(false);
 
@@ -56,6 +50,40 @@ function ChangeServerScreen({ navigation, route }) {
     });
     Animated.stagger(100, animations).start(); // Запуск анимации с задержкой между элементами
   }, [servers, animatedValues]); // Запускать при изменении списка серверов (например, при первой загрузке)
+
+  // Загрузка серверов из конфигов и пинга
+  useEffect(() => {
+    async function loadServers() {
+      try {
+        const configs = await getAllWireGuardConfigs(configsPath);
+        const loadedServers = [];
+        for (let i = 0; i < configs.length; i++) {
+          const parsed = parseWireGuardConfig(configs[i].body);
+          let ping = null;
+          try {
+            ping = await RNReactNativePing.start(parsed.serverAddress, { timeout: 1000 });
+          } catch (e) {
+            ping = null;
+          }
+          loadedServers.push({
+            id: i + 1,
+            name: configs[i].name,
+            endpoint: parsed.serverAddress,
+            port: parsed.serverPort,
+            ping,
+            isPinned: false,
+          });
+        }
+        setServers(loadedServers);
+        if (loadedServers.length > 0 && !activeServerId) {
+          setActiveServerId(loadedServers[0].id);
+        }
+      } catch (e) {
+        setServers([]);
+      }
+    }
+    loadServers();
+  }, [activeServerId]);
 
   // Загрузка активного сервера при монтировании компонента
   useEffect(() => {
@@ -147,20 +175,20 @@ function ChangeServerScreen({ navigation, route }) {
     });
   };
 
+  // В renderPingIndicator используем ping из сервера
   const renderPingIndicator = (ping) => {
     let activeBars = 0;
     let barColor = '#4CAF50';
-
-    if (ping <= 50) activeBars = 4;
-    else if (ping <= 80) activeBars = 3;
-    else if (ping <= 120) {
+    const pingValue = ping !== null ? ping : 999;
+    if (pingValue <= 50) activeBars = 4;
+    else if (pingValue <= 80) activeBars = 3;
+    else if (pingValue <= 120) {
       activeBars = 2;
       barColor = '#FFC107';
     } else {
       activeBars = 1;
       barColor = '#F44336';
     }
-
     return (
       <View style={styles.pingContainer}>
         {[1, 2, 3, 4].map((i) => (
@@ -176,7 +204,7 @@ function ChangeServerScreen({ navigation, route }) {
             ]}
           />
         ))}
-        <Text style={styles.pingText}>{ping}ms</Text>
+        <Text style={styles.pingText}>{pingValue}ms</Text>
       </View>
     );
   };

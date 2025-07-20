@@ -1,7 +1,6 @@
 import React from 'react';
 import MainTabs from './src/system_functions/navigation';
-import { StatusBar } from 'react-native';
-import { View } from 'react-native';
+import { View, StatusBar } from 'react-native';
 
 function App() {
   return (
@@ -14,5 +13,5 @@ function App() {
     </View>
   )
 }
-
 export default App;
+
