@@ -532,8 +532,8 @@ useEffect(() => {
             const angle = 52 - ((8 - value[1]) / 8) * 285;
             const radian = (angle * Math.PI) / 180;
             const radius = pixelToHeight(130);
-            const x = pixelToHeight(100) + radius * Math.cos(radian);
-            const y = pixelToHeight(100) + radius * Math.sin(radian);
+            const x = pixelToHeight(100 + radius * Math.cos(radian));
+            const y = pixelToHeight(100 + radius * Math.sin(radian));
             
             return (
               <Text
