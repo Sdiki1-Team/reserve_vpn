@@ -9,12 +9,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getAllWireGuardConfigs, parseWireGuardConfig, configsPath } from '../config/configs';
 import RNReactNativePing from 'react-native-ping';
 import { vpnService } from '../system_functions/VPNService';
-import NetInfo from '@react-native-community/netinfo';
+
 
 // Импорт фоновых изображений
 const BackgroundStripes = require('../images/backgroud_stripes.png');
 const BackgroundStripesActive = require('../images/background_stripes_active.png');
-
 
 const { width } = Dimensions.get('window');
 
@@ -132,30 +131,99 @@ function HomeScreen({ navigation }) {
     timerRef.current = null;
   };
 
-  // Обновление статуса VPN каждую секунду, если подключено
-  useEffect(() => {
-    let intervalId = null;
-    if (connected) {
-      intervalId = setInterval(async () => {
-        try {
-          // Получаем общую сетевую статистику
-          const state = await NetInfo.fetch();
-          await NetInfo.refresh();
-    
-          
-          setDownloadSpeed(0); // Мбит/с
-          setUploadSpeed(0); // Мбит/с
-        } catch (e) {
-          console.log(e);
-          setDownloadSpeed(0);
-          setUploadSpeed(0);
-        }
-      }, 1000);
+  // Найти текущий useEffect для измерения скорости (строки 149-195)
+// И заменить ВЕСЬ этот блок на:
+
+useEffect(() => {
+  if (!connected) return;
+
+  let isMounted = true;
+  const abortController = new AbortController();
+  let intervalId = null;
+
+  // Генератор случайных данных для теста выгрузки
+  const generateTestData = (size) => {
+    const data = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      data[i] = Math.floor(Math.random() * 256);
     }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [connected]);
+    return data;
+  };
+
+  // ИСПРАВЛЕННАЯ ФУНКЦИЯ
+  const testDownloadSpeed = async () => {
+    try {
+      const testFileUrl = `https://speed.cloudflare.com/__down?bytes=${102400}`; // 100KB
+      const startTime = Date.now();
+      
+      const response = await fetch(testFileUrl, {
+        signal: abortController.signal,
+        cache: 'no-store'
+      });
+      
+      // Используем ArrayBuffer для точного измерения
+      const arrayBuffer = await response.arrayBuffer();
+      const totalBytes = arrayBuffer.byteLength;
+      
+      const duration = (Date.now() - startTime) / 1000;
+      const speedMbps = ((totalBytes * 8) / (duration * 1000000)).toFixed(2);
+      
+      if (isMounted) {
+        setDownloadSpeed(parseFloat(speedMbps));
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError' && isMounted) {
+        console.log('Download test error:', error);
+      }
+    }
+  };
+
+  // Функция для измерения скорости выгрузки
+  const testUploadSpeed = async () => {
+    try {
+      const testUrl = 'https://speed.cloudflare.com/__up';
+      const testData = generateTestData(102400); // 100KB
+      const startTime = Date.now();
+      
+      await fetch(testUrl, {
+        method: 'POST',
+        body: testData,
+        signal: abortController.signal,
+        headers: {
+          'Content-Type': 'application/octet-stream'
+        }
+      });
+      
+      const duration = (Date.now() - startTime) / 1000;
+      const speedMbps = ((testData.length * 8) / (duration * 1000000)).toFixed(2);
+      
+      if (isMounted) {
+        setUploadSpeed(parseFloat(speedMbps));
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError' && isMounted) {
+        console.log('Upload test error:', error);
+      }
+    }
+  };
+
+  // Основная функция тестирования
+  const runSpeedTest = async () => {
+    await testDownloadSpeed();
+    await new Promise(resolve => setTimeout(resolve, 300)); // Пауза между тестами
+    await testUploadSpeed();
+  };
+
+  // Запуск периодического тестирования
+  intervalId = setInterval(runSpeedTest, 3000);
+  runSpeedTest(); // Первый запуск
+
+  return () => {
+    isMounted = false;
+    abortController.abort();
+    if (intervalId) clearInterval(intervalId);
+  };
+}, [connected]);
 
   // AppState для фонового таймера
   useEffect(() => {
