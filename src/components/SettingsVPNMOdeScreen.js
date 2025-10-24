@@ -65,7 +65,7 @@ function SettingsVPNModeScreen({ navigation }) {
       style={{ flex: 1 }}
       resizeMode="stretch"
     >
-      <View style={[commonStyles.container, { paddingTop: pixelToHeight(Platform.OS == 'ios' ? 110 : 80), marginTop: 0 }]}>
+      <View style={[commonStyles.container, { paddingTop: pixelToHeight(Platform.OS == 'ios' ? pixelToHeight(110) : pixelToHeight(80)), marginTop: 0 }]}>
         <Text style={[commonStyles.titleText, commonStyles.absouluteCenteredTitile]}>VPN Mode Selection</Text>
         <BackButton onPress={() => navigation.goBack()} />
 

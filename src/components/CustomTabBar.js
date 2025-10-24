@@ -150,6 +150,13 @@ const CustomTabBar = ({ state, descriptors, navigation, onTabPress }) => {
                   justifyContent: isFocused ? 'flex-start' : 'center',
                   width: isFocused ? 'auto' : '100%',
                   zIndex: 10,
+
+                  // симметричные внешние отступы для активных крайних вкладок
+                  marginLeft: isFocused && index === 0 ? pixelToHeight(5) : pixelToHeight(2),
+                  marginRight:
+                    isFocused && index === state.routes.length - 1
+                      ? pixelToHeight(5)
+                      : pixelToHeight(2),
                 }
               ]}
             >
@@ -208,9 +215,14 @@ const styles = StyleSheet.create({
     minWidth: pixelToHeight(40),
   },
   activeTabContent: {
-    backgroundColor: '#723CEB', // Фиолетовый цвет для активной вкладки
-    justifyContent: 'flex-start', // Для активной вкладки выравниваем по левому краю
+    backgroundColor: '#723CEB',
+    justifyContent: 'flex-start',
     elevation: 4,
+
+    // добавляем симметрию и большую ширину активной кнопке
+    paddingHorizontal: pixelToHeight(16),
+    borderRadius: pixelToHeight(100),
+    alignSelf: 'center',
   },
   icon: {
     resizeMode: 'contain',

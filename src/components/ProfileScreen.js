@@ -193,16 +193,6 @@ function ProfileScreen({ navigation }) {
     { name: 'Реклама', basic: true, pro: false, ultra: false, description: 'Небольшие рекламные баннеры в интерфейсе приложения для поддержки бесплатной версии.' },
   ];
 
-  const handleConnectDisconnect = async () => {
-    const newConnectedState = !connected;
-    setConnected(newConnectedState);
-    try {
-      await AsyncStorage.setItem('connected', JSON.stringify(newConnectedState));
-    } catch (e) {
-      console.error("Ошибка при сохранении connected в AsyncStorage:", e);
-    }
-  };
-
   const renderFeatureItem = (feature) => (
     <TouchableOpacity 
       style={styles.featureItem}
@@ -256,81 +246,76 @@ function ProfileScreen({ navigation }) {
           <Text style={styles.referralText}>Реферальная система</Text>
         </View>
 
-        <View style={styles.subscriptionHeader}>
-          <Text style={styles.sectionTitle}>Подписки</Text>
-          <TouchableOpacity onPress={() => setShowFeaturesModal(true)}>
-            <Text style={styles.featuresLink}>функции всех тарифов</Text>
+        <ScrollView>
+          <View style={styles.subscriptionHeader}>
+            <Text style={styles.sectionTitle}>Подписки</Text>
+            <TouchableOpacity onPress={() => setShowFeaturesModal(true)}>
+              <Text style={styles.featuresLink}>функции всех тарифов</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.tariffSelector}>
+            {['Базовый', 'Про', 'Ультра'].map((tariff, index) => (
+              <React.Fragment key={tariff}>
+                <TouchableOpacity
+                  style={[
+                    styles.tariffTab,
+                    activeTariff === tariff && styles.activeTariffTab
+                  ]}
+                  onPress={() => setActiveTariff(tariff)}
+                >
+                  <Text style={activeTariff === tariff ? styles.activeTariffText : styles.tariffText}>
+                    {tariff}
+                  </Text>
+                </TouchableOpacity>
+                {index < 2 && <View style={styles.divider} />}
+              </React.Fragment>
+            ))}
+          </View>
+
+          <Text style={styles.tariffDescription}>
+            {tariffs[activeTariff].description}
+          </Text>
+
+          <View style={styles.featuresContainer}>
+            {tariffs[activeTariff].features.map((featureName, index) => {
+              const featureData = allFeaturesData.find(f => f.name === featureName) || { name: featureName };
+              return (
+                <View key={`${featureName}_${index}`}>
+                  {renderFeatureItem(featureData)}
+                </View>
+              );
+            })}
+          </View>
+
+          <View style={styles.priceContainer}>
+            <Text style={styles.currentPrice}>{tariffs[activeTariff].price}</Text>
+            <Text style={styles.oldPrice}>{tariffs[activeTariff].oldPrice}</Text>
+          </View>
+
+          <View style={styles.tariffSelector}>
+            {['1 Месяц', '3 Месяца', '6 Месяцев'].map((period, index) => (
+              <React.Fragment key={period}>
+                <TouchableOpacity
+                  style={[
+                    styles.tariffTab,
+                    activePeriod === period && styles.activeTariffTab
+                  ]}
+                  onPress={() => setActivePeriod(period)}
+                >
+                  <Text style={activePeriod === period ? styles.activeTariffText : styles.tariffText}>
+                    {period}
+                  </Text>
+                </TouchableOpacity>
+                {index < 2 && <View style={styles.periodDivider} />}
+              </React.Fragment>
+            ))}
+          </View>
+
+          <TouchableOpacity style={styles.subscribeButton}>
+            <Text style={styles.subscribeText}>Подключить</Text>
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.tariffSelector}>
-          {['Базовый', 'Про', 'Ультра'].map((tariff, index) => (
-            <React.Fragment key={tariff}>
-              <TouchableOpacity
-                style={[
-                  styles.tariffTab,
-                  activeTariff === tariff && styles.activeTariffTab
-                ]}
-                onPress={() => setActiveTariff(tariff)}
-              >
-                <Text style={activeTariff === tariff ? styles.activeTariffText : styles.tariffText}>
-                  {tariff}
-                </Text>
-              </TouchableOpacity>
-              {index < 2 && <View style={styles.divider} />}
-            </React.Fragment>
-          ))}
-        </View>
-
-        <Text style={styles.tariffDescription}>
-          {tariffs[activeTariff].description}
-        </Text>
-
-        <View style={styles.featuresContainer}>
-          {tariffs[activeTariff].features.map((featureName, index) => {
-            const featureData = allFeaturesData.find(f => f.name === featureName) || { name: featureName };
-            return (
-              <View key={`${featureName}_${index}`}>
-                {renderFeatureItem(featureData)}
-              </View>
-            );
-          })}
-        </View>
-
-        <View style={styles.priceContainer}>
-          <Text style={styles.currentPrice}>{tariffs[activeTariff].price}</Text>
-          <Text style={styles.oldPrice}>{tariffs[activeTariff].oldPrice}</Text>
-        </View>
-
-        <TouchableOpacity style={styles.subscribeButton}>
-          <Text style={styles.subscribeText}>Подключить</Text>
-        </TouchableOpacity>
-
-        <View style={styles.periodSelector}>
-          {['1 Месяц', '3 Месяца', '6 Месяцев'].map((period, index) => (
-            <React.Fragment key={period}>
-              <TouchableOpacity
-                style={[
-                  styles.periodTab,
-                  activePeriod === period && styles.activePeriodTab
-                ]}
-                onPress={() => setActivePeriod(period)}
-              >
-                <Text style={activePeriod === period ? styles.activePeriodText : styles.periodText}>
-                  {period}
-                </Text>
-              </TouchableOpacity>
-              {index < 2 && <View style={styles.periodDivider} />}
-            </React.Fragment>
-          ))}
-        </View>
-
-        <TouchableOpacity
-          style={styles.connectButton}
-          onPress={handleConnectDisconnect}
-        >
-          <Text style={styles.connectButtonText}>{connected ? 'Отключить' : 'Подключить'}</Text>
-        </TouchableOpacity>
+        </ScrollView>
 
         <Modal
           visible={isFeaturesModalContentVisible}
@@ -346,6 +331,7 @@ function ProfileScreen({ navigation }) {
               <Animated.View style={[
                 styles.modalContent,
                 styles.featuresTableModalContent,
+                {padding: 15},
                 { transform: [{ scale: featuresModalContentScale }], opacity: featuresModalContentOpacity },
                 { borderColor: '#723CEB', borderWidth: pixelToHeight(2) }
               ]}>
@@ -371,24 +357,24 @@ function ProfileScreen({ navigation }) {
                     </View>
                     <View style={[styles.tableHeaderCell, {flex: 1.5}]}
                     >
-                      <Text style={[styles.tableHeaderText, {fontSize: pixelToHeight(10), textAlign: 'left'}]}>Базовый</Text>
+                      <Text style={[styles.tableHeaderText, {fontSize: pixelToHeight(9), textAlign: 'left'}]}>Базовый</Text>
                     </View>
                     <View style={[styles.tableHeaderverticalDivider, {backgroundColor: '#723CEB'}]} />
                     <View style={[styles.tableHeaderCell, {flex: 1}]}
                     >
-                      <Text style={[styles.tableHeaderText, {fontSize: pixelToHeight(10), textAlign: 'center'}]}>Про</Text>
+                      <Text style={[styles.tableHeaderText, {fontSize: pixelToHeight(9), textAlign: 'center'}]}>Про</Text>
                     </View>
                     <View style={[styles.tableHeaderverticalDivider, {backgroundColor: '#723CEB'}]} />
                     <View style={[styles.tableHeaderCell, {flex: 1.5}]}
                     >
-                      <Text style={[styles.tableHeaderText, {fontSize: pixelToHeight(10), textAlign: 'right'}]}>Ультра</Text>
+                      <Text style={[styles.tableHeaderText, {fontSize: pixelToHeight(9), textAlign: 'right'}]}>Ультра</Text>
                     </View>
                     <View style={[styles.tableHeaderCell, {flex: 0}]}> 
                       <Text style={styles.tableHeaderText}> </Text>
                     </View>
                   </View>
                   
-                  <ScrollView>
+                  <ScrollView style={{paddingRight: 10}}>
                     {allFeaturesData.map((feature, index) => (
                       <View key={index} style={styles.tableRow}>
                         <View style={[styles.tableCell, {flex: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}]}>
@@ -690,17 +676,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '400',
     fontSize: pixelToHeight(18),
-  },
-  periodSelector: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#191919',
-    borderRadius: pixelToHeight(10),
-    height: pixelToHeight(35),
-    marginBottom: pixelToHeight(35),
-    overflow: 'hidden',
-    marginTop: pixelToHeight(20),
   },
   tariffTab: {
     justifyContent: 'center',

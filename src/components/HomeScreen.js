@@ -7,8 +7,8 @@ import { pixelToHeight } from '../styles/commonStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { getAllWireGuardConfigs, parseWireGuardConfig, configsPath } from '../config/configs';
-import RNReactNativePing from 'react-native-ping';
 import { vpnService } from '../system_functions/VPNService';
+import { ICMP } from 'ping-react-native';
 
 
 // Импорт фоновых изображений
@@ -19,7 +19,6 @@ const { width } = Dimensions.get('window');
 
 function HomeScreen({ navigation }) {
   const [connected, setConnected] = useState(false);
-  const [ping, setPing] = useState(null);
   const [selectedSpeedType, setSelectedSpeedType] = useState(null);
   const [showSpeedometer, setShowSpeedometer] = useState(false);
   const [currentServer, setCurrentServer] = useState(null);
@@ -30,7 +29,6 @@ function HomeScreen({ navigation }) {
   const timerRef = useRef(null);
   const [appState, setAppState] = useState(AppState.currentState);
   const lastActiveTimestamp = useRef(null);
-  const prevTrafficRef = useRef({ rx: 0, tx: 0, timestamp: Date.now() });
 
   // Анимация волн
   const staticScales = useMemo(() => [1, 1, 1, 1.2, 1.4, 1.6], []);
@@ -45,8 +43,6 @@ function HomeScreen({ navigation }) {
   // Устанавливаем значения по умолчанию
   const myIp = "192.168.1.35";
   const vpnIp = "10.8.0.2";
-  const downloadSpeedDefault = 45.6;
-  const uploadSpeedDefault = 12.3;
 
   // Устанавливаем первый сервер по умолчанию или загружаем активный
   useEffect(() => {
@@ -64,10 +60,22 @@ function HomeScreen({ navigation }) {
         const loadedServers = [];
         for (let i = 0; i < configs.length; i++) {
           const parsed = parseWireGuardConfig(configs[i].body);
-          let ping = null;
+          let ping = 999;
           try {
-            ping = await RNReactNativePing.start(parsed.serverAddress, { timeout: 1000 });
-          } catch (e) { ping = null; }
+            const icmp = new ICMP({ host: parsed.serverAddress, packetSize: 64, timeout: 1000, count: 1 });
+            const result = await new Promise((resolve, reject) => {
+              icmp.ping(res => {
+                if (res.isEnded) {
+                  resolve(res);
+                }
+              });
+              setTimeout(() => reject(new Error('Timeout')), 2000);
+            });
+            ping = Math.floor(result.rtt);
+            icmp.stop();
+          } catch (e) {
+            ping = 999;
+          }
           loadedServers.push({
             id: i + 1,
             name: configs[i].name,
@@ -78,10 +86,10 @@ function HomeScreen({ navigation }) {
         }
         if (!cancelled) {
           setServers(loadedServers);
-          if (loadedServers.length > 0) setCurrentServer(loadedServers[0]);
+          if (loadedServers.length > 0) {setCurrentServer(loadedServers[0]);}
         }
       } catch (e) {
-        if (!cancelled) setServers([]);
+        if (!cancelled) {setServers([]);}
       }
     }
     loadServers();

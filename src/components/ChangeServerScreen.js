@@ -6,7 +6,7 @@ import BackButton from './BackButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { getAllWireGuardConfigs, parseWireGuardConfig, configsPath } from '../config/configs';
-import RNReactNativePing from 'react-native-ping';
+import { ICMP } from 'ping-react-native';
 
 // Импорт иконок для кнопки закрепления
 const PinIcon = require('../images/icons/pin.png');
@@ -59,11 +59,21 @@ function ChangeServerScreen({ navigation, route }) {
         const loadedServers = [];
         for (let i = 0; i < configs.length; i++) {
           const parsed = parseWireGuardConfig(configs[i].body);
-          let ping = null;
+          let ping = 999;
           try {
-            ping = await RNReactNativePing.start(parsed.serverAddress, { timeout: 1000 });
+            const icmp = new ICMP({ host: parsed.serverAddress, packetSize: 64, timeout: 1000, count: 1 });
+            const result = await new Promise((resolve, reject) => {
+              icmp.ping(res => {
+                if (res.isEnded) {
+                  resolve(res);
+                }
+              });
+              setTimeout(() => reject(new Error('Timeout')), 2000);
+            });
+            ping = Math.floor(result.rtt);
+            icmp.stop();
           } catch (e) {
-            ping = null;
+            ping = 999;
           }
           loadedServers.push({
             id: i + 1,
